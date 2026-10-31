@@ -1,43 +1,235 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GII MOVIES</title>
+
+    <title>GII MOVIES | Premium Entertainment</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             background: #080808;
             color: white;
             font-family: Arial, sans-serif;
-            text-align: center;
         }
+
         header {
-            padding: 25px;
-            background: #151515;
-            border-bottom: 2px solid red;
+            background: #111;
+            padding: 20px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid #333;
         }
-        h1 { color: #e50914; }
-        main { padding: 100px 20px; }
-        a {
-            display: inline-block;
-            padding: 14px 25px;
-            background: #e50914;
+
+        .logo {
+            color: #e50914;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
             color: white;
             text-decoration: none;
+        }
+
+        nav a:hover {
+            color: #e50914;
+        }
+
+        .hero {
+            padding: 100px 7%;
+            min-height: 400px;
+            background: linear-gradient(90deg, #080808, #222);
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            max-width: 650px;
+        }
+
+        .hero h1 span {
+            color: #e50914;
+        }
+
+        .hero p {
+            color: #ccc;
+            max-width: 550px;
+            line-height: 1.7;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #e50914;
+            color: white;
+            padding: 14px 25px;
             border-radius: 5px;
+            text-decoration: none;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background: #b00610;
+        }
+
+        .section {
+            padding: 40px 6%;
+        }
+
+        .section h2 {
+            border-left: 5px solid #e50914;
+            padding-left: 12px;
+        }
+
+        .search {
+            width: 100%;
+            max-width: 450px;
+            padding: 14px;
+            margin: 20px 0;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background: #191919;
+            color: white;
+        }
+
+        .category {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .category button {
+            background: #222;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .category button:hover {
+            background: #e50914;
+        }
+
+        #moviesContainer {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .movie-link {
+            color: white;
+            text-decoration: none;
+        }
+
+        .movie-card {
+            background: #171717;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: 0.3s;
+            height: 100%;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 5px 20px #e5091444;
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .movie-card h3,
+        .movie-card p {
+            padding: 0 12px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: #111;
+            color: #aaa;
+            margin-top: 40px;
         }
     </style>
 </head>
-<body>
-    <header>
-        <h1>GII MOVIES</h1>
-    </header>
 
-    <main>
-        <h2>Welcome to GII MOVIES</h2>
-        <p>Discover and enjoy your favourite movies.</p>
-        <a href="movies.html">Explore Movies</a>
-    </main>
+<body>
+
+<header>
+    <div class="logo">GII MOVIES</div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="movies.html">Movies</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Sign Up</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>
+        Unlimited Movies.
+        <span>Unlimited Entertainment.</span>
+    </h1>
+
+    <p>
+        Discover amazing movies, explore different categories
+        and enjoy your favourite entertainment with GII MOVIES.
+    </p>
+
+    <a href="movies.html" class="btn">Explore All Movies</a>
+</section>
+
+<section class="section">
+
+    <h2>Popular Movies</h2>
+
+    <input
+        type="text"
+        id="searchInput"
+        class="search"
+        placeholder="Search movies..."
+        onkeyup="searchMovies()"
+    >
+
+    <div class="category" id="categoryFilters">
+        <button onclick="filterCategory('all')">All</button>
+    </div>
+
+    <p id="loadingMessage">Loading movies...</p>
+
+    <div id="moviesContainer"></div>
+
+</section>
+
+<footer>
+    <h3>GII MOVIES</h3>
+    <p>Unlimited Movies. Unlimited Entertainment.</p>
+    <p>© 2026 GII MOVIES. All Rights Reserved.</p>
+</footer>
+
+<script src="js/main.js"></script>
+
 </body>
 </html>
