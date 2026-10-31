@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Details | GII MOVIES</title>
     <link rel="stylesheet" href="css/style.css">
+
     <style>
         .details {
             padding: 60px 7%;
@@ -15,6 +16,7 @@
             gap: 40px;
             flex-wrap: wrap;
         }
+
         .details img {
             width: 280px;
             max-width: 100%;
@@ -22,16 +24,34 @@
             object-fit: cover;
             border-radius: 10px;
         }
-        .info { max-width: 550px; }
-        .info h1 { font-size: 38px; margin-bottom: 15px; }
-        .info p { color: #ccc; line-height: 1.8; margin-bottom: 20px; }
-        .meta { color: #e50914; margin-bottom: 20px; }
+
+        .info {
+            max-width: 550px;
+        }
+
+        .info h1 {
+            font-size: 38px;
+            margin-bottom: 15px;
+        }
+
+        .info p {
+            color: #ccc;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .meta {
+            color: #e50914;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
+
 <body>
 
 <header>
     <div class="logo">GII MOVIES</div>
+
     <nav>
         <a href="index.html">Home</a>
         <a href="movies.html">Movies</a>
@@ -40,16 +60,25 @@
 </header>
 
 <section class="details">
+
     <img id="poster" src="" alt="Movie poster">
 
     <div class="info">
-        <h1 id="title">Movie Title</h1>
+        <h1 id="title">Loading movie...</h1>
+
         <div class="meta" id="meta"></div>
+
         <p id="description"></p>
-        <a href="watch.html" class="btn">▶ Watch Movie</a>
+
+        <a id="watchButton" href="#" class="btn">
+            ▶ WATCH NOW
+        </a>
+
         <br><br>
+
         <a href="movies.html">← Back to Movies</a>
     </div>
+
 </section>
 
 <footer>
@@ -57,52 +86,66 @@
 </footer>
 
 <script>
-const movieData = {
-    "dark-world": {
-        title: "Dark World",
-        category: "Action",
-        year: "2026",
-        poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=500",
-        description: "Enter a mysterious world full of action, danger and unexpected adventures."
-    },
-    "lost-kingdom": {
-        title: "Lost Kingdom",
-        category: "Adventure",
-        year: "2026",
-        poster: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500",
-        description: "Discover a lost kingdom and follow an unforgettable adventure."
-    },
-    "wild-journey": {
-        title: "Wild Journey",
-        category: "Drama",
-        year: "2026",
-        poster: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=500",
-        description: "A dramatic journey about courage, friendship and difficult choices."
-    },
-    "night-mystery": {
-        title: "Night Mystery",
-        category: "Thriller",
-        year: "2026",
-        poster: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=500",
-        description: "A mysterious night brings secrets and unexpected discoveries."
+const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
+
+async function loadMovie() {
+
+    const params = new URLSearchParams(window.location.search);
+    const movieId = params.get("id");
+
+    if (!movieId) {
+        showError("Movie ID not found.");
+        return;
     }
-};
 
-const movieId = new URLSearchParams(window.location.search).get("movie");
-const movie = movieData[movieId];
+    try {
 
-if (movie) {
-    document.getElementById("title").textContent = movie.title;
-    document.getElementById("meta").textContent =
-        movie.category + " • " + movie.year;
-    document.getElementById("poster").src = movie.poster;
-    document.getElementById("description").textContent = movie.description;
-} else {
-    document.getElementById("title").textContent = "Movie Not Found";
-    document.getElementById("description").textContent =
-        "Please return to the movies page and select a movie.";
-    document.getElementById("poster").style.display = "none";
+        const response = await fetch(API_URL + "/api/movies");
+        const data = await response.json();
+
+        const movie = data.movies.find(item =>
+            String(item.movie_id) === movieId
+        );
+
+        if (!movie) {
+            showError("Movie not found.");
+            return;
+        }
+
+        document.getElementById("title").textContent = movie.title;
+
+        document.getElementById("meta").textContent =
+            (movie.category_name || "Movie") + " • " +
+            (movie.release_year || "");
+
+        document.getElementById("poster").src =
+            movie.poster_url || "https://placehold.co/400x500?text=GII+MOVIES";
+
+        document.getElementById("description").textContent =
+            movie.description || "No description available.";
+
+        document.getElementById("watchButton").href =
+            "watch.html?id=" + movie.movie_id;
+
+    } catch (error) {
+
+        console.error(error);
+        showError("Unable to load movie. Please try again.");
+
+    }
 }
+
+function showError(message) {
+
+    document.getElementById("title").textContent = message;
+    document.getElementById("description").textContent =
+        "Please return to the movies page and try again.";
+
+    document.getElementById("poster").style.display = "none";
+    document.getElementById("watchButton").style.display = "none";
+}
+
+loadMovie();
 </script>
 
 </body>
