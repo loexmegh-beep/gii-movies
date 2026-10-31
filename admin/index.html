@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | GII MOVIES</title>
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        body { min-height: 100vh; }
+
+        .admin-header {
+            padding: 22px 5%;
+            background: #111;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h2 { color: #e50914; }
+
+        .dashboard {
+            padding: 35px 5%;
+        }
+
+        .dashboard h1 { margin-bottom: 25px; }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: #191919;
+            border: 1px solid #333;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        .stat-card h3 {
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+
+        .stat-card strong {
+            font-size: 32px;
+            color: #e50914;
+        }
+
+        .admin-actions {
+            margin-top: 35px;
+            background: #191919;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        .admin-actions a {
+            display: inline-block;
+            background: #e50914;
+            padding: 13px 20px;
+            border-radius: 5px;
+            margin: 10px 10px 0 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="admin-header">
+    <h2>GII MOVIES ADMIN</h2>
+    <a href="../index.html">Visit Website</a>
+</header>
+
+<main class="dashboard">
+
+    <h1>Admin Dashboard</h1>
+
+    <div class="stats">
+
+        <div class="stat-card">
+            <h3>Total Movies</h3>
+            <strong>4</strong>
+        </div>
+
+        <div class="stat-card">
+            <h3>Total Users</h3>
+            <strong>0</strong>
+        </div>
+
+        <div class="stat-card">
+            <h3>Categories</h3>
+            <strong>4</strong>
+        </div>
+
+    </div>
+
+    <div class="admin-actions">
+        <h2>Manage Website</h2>
+
+        <a href="../movies.html">View Movies</a>
+        <a href="../index.html">View Homepage</a>
+    </div>
+
+</main>
+
+<footer>
+    <p>© 2026 GII MOVIES Admin Panel</p>
+</footer>
+
+</body>
+</html>
