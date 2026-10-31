@@ -17,10 +17,6 @@
             border-radius: 10px;
         }
 
-        .form-container h1 {
-            margin-bottom: 25px;
-        }
-
         .form-container label {
             display: block;
             margin: 15px 0 8px;
@@ -35,11 +31,11 @@
             color: white;
             border: 1px solid #444;
             border-radius: 5px;
+            box-sizing: border-box;
         }
 
         .form-container textarea {
             min-height: 110px;
-            resize: vertical;
         }
 
         .form-container button {
@@ -51,6 +47,11 @@
             color: white;
             font-weight: bold;
             border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #message {
+            margin-top: 15px;
         }
 
         .back {
@@ -72,55 +73,123 @@
 </header>
 
 <div class="form-container">
+
     <h1>Add New Movie</h1>
 
     <form id="movieForm">
+
         <label for="title">Movie Title</label>
-        <input type="text" id="title" placeholder="Enter movie title" required>
+        <input type="text" id="title" required>
 
         <label for="category">Category</label>
         <select id="category" required>
-            <option value="">Select category</option>
-            <option>Action</option>
-            <option>Drama</option>
-            <option>Adventure</option>
-            <option>Comedy</option>
-            <option>Thriller</option>
-            <option>Romance</option>
+            <option value="">Loading categories...</option>
         </select>
 
         <label for="year">Release Year</label>
-        <input type="number" id="year" placeholder="2026" required>
+        <input type="number" id="year" min="1900" max="2100" required>
 
         <label for="poster">Poster Image URL</label>
-        <input type="url" id="poster" placeholder="https://example.com/poster.jpg" required>
+        <input type="url" id="poster" placeholder="https://example.com/poster.jpg">
+
+        <label for="video">Video URL (Optional)</label>
+        <input type="url" id="video" placeholder="https://example.com/movie.mp4">
 
         <label for="description">Movie Description</label>
-        <textarea id="description" placeholder="Describe this movie..." required></textarea>
+        <textarea id="description" required></textarea>
 
-        <button type="submit">SAVE MOVIE</button>
+        <button type="submit" id="saveButton">SAVE MOVIE</button>
+
     </form>
 
+    <p id="message"></p>
+
     <a class="back" href="index.html">← Back to Dashboard</a>
+
 </div>
 
 <script>
-document.getElementById("movieForm").addEventListener("submit", function(event) {
+const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
+const token = sessionStorage.getItem("adminToken");
+
+if (!token) {
+    window.location.href = "login.html";
+}
+
+// LOAD CATEGORIES FROM DATABASE
+async function loadCategories() {
+    const select = document.getElementById("category");
+
+    try {
+        const response = await fetch(API_URL + "/api/categories");
+        const data = await response.json();
+
+        select.innerHTML = '<option value="">Select category</option>';
+
+        data.categories.forEach(category => {
+            const option = document.createElement("option");
+            option.value = category.category_id;
+            option.textContent = category.category_name;
+            select.appendChild(option);
+        });
+
+    } catch (error) {
+        select.innerHTML = '<option value="">Failed to load categories</option>';
+    }
+}
+
+loadCategories();
+
+// SAVE MOVIE TO DATABASE
+document.getElementById("movieForm").addEventListener("submit",
+async function(event) {
+
     event.preventDefault();
 
+    const message = document.getElementById("message");
+    const button = document.getElementById("saveButton");
+
     const movie = {
-        title: document.getElementById("title").value,
-        category: document.getElementById("category").value,
-        year: document.getElementById("year").value,
-        poster: document.getElementById("poster").value,
-        description: document.getElementById("description").value
+        title: document.getElementById("title").value.trim(),
+        category_id: Number(document.getElementById("category").value),
+        release_year: Number(document.getElementById("year").value),
+        poster_url: document.getElementById("poster").value.trim(),
+        video_url: document.getElementById("video").value.trim(),
+        description: document.getElementById("description").value.trim()
     };
 
-    console.log("Movie information:", movie);
+    button.disabled = true;
+    button.textContent = "SAVING...";
 
-    alert("Movie form completed! Database connection will be added later.");
+    try {
+        const response = await fetch(API_URL + "/api/movies", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify(movie)
+        });
 
-    this.reset();
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Failed to save movie");
+        }
+
+        message.style.color = "#00cc66";
+        message.textContent = "Movie added successfully!";
+
+        this.reset();
+
+    } catch (error) {
+        message.style.color = "#ff5555";
+        message.textContent = error.message;
+
+    } finally {
+        button.disabled = false;
+        button.textContent = "SAVE MOVIE";
+    }
 });
 </script>
 
