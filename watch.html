@@ -44,6 +44,12 @@
             margin-top: 20px;
             color: #e50914;
         }
+
+        #videoMessage {
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -60,16 +66,21 @@
 <main class="watch-container">
 
     <div class="video-box">
-        <video controls poster="https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=1000">
-            <source src="" type="video/mp4">
+        <video id="movieVideo" controls playsinline>
             Your browser does not support video playback.
         </video>
+
+        <p id="videoMessage">Loading video...</p>
     </div>
 
     <div class="movie-info">
-        <h1>Dark World</h1>
-        <p>Enjoy watching your favourite movies on GII MOVIES.</p>
-        <a href="movies.html" class="back-link">← Back to Movies</a>
+        <h1 id="movieTitle">Loading movie...</h1>
+        <p id="movieMeta"></p>
+        <p id="movieDescription"></p>
+
+        <a href="movies.html" class="back-link">
+            ← Back to Movies
+        </a>
     </div>
 
 </main>
@@ -77,6 +88,84 @@
 <footer>
     <p>© 2026 GII MOVIES. All Rights Reserved.</p>
 </footer>
+
+<script>
+const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
+
+async function loadMovie() {
+
+    const movieId = new URLSearchParams(
+        window.location.search
+    ).get("id");
+
+    const video = document.getElementById("movieVideo");
+    const message = document.getElementById("videoMessage");
+
+    if (!movieId) {
+        document.getElementById("movieTitle").textContent =
+            "Movie ID not found";
+
+        message.textContent = "Please select a movie first.";
+        return;
+    }
+
+    try {
+
+        const response = await fetch(API_URL + "/api/movies");
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error("Unable to get movies");
+        }
+
+        const movie = data.movies.find(item =>
+            String(item.movie_id) === movieId
+        );
+
+        if (!movie) {
+            throw new Error("Movie not found");
+        }
+
+        document.getElementById("movieTitle").textContent =
+            movie.title;
+
+        document.getElementById("movieMeta").textContent =
+            (movie.category_name || "Movie") + " • " +
+            (movie.release_year || "");
+
+        document.getElementById("movieDescription").textContent =
+            movie.description || "No description available.";
+
+        if (movie.poster_url) {
+            video.poster = movie.poster_url;
+        }
+
+        if (movie.video_url && movie.video_url.trim() !== "") {
+
+            video.src = movie.video_url;
+            message.textContent = "Your movie is ready to watch.";
+
+        } else {
+
+            message.textContent =
+                "Video is not available yet. Please check back later.";
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("movieTitle").textContent =
+            "Unable to load movie";
+
+        message.textContent = error.message;
+
+    }
+}
+
+loadMovie();
+</script>
 
 </body>
 </html>
