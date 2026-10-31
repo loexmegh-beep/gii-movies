@@ -9,7 +9,13 @@
 
     <style>
         body { min-height: 100vh; }
+<script>
+const token = sessionStorage.getItem("adminToken");
 
+if (!token) {
+    window.location.href = "login.html";
+}
+</script>
         .admin-header {
             padding: 22px 5%;
             background: #111;
