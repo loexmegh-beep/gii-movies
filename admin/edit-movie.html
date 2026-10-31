@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Movie - GII MOVIES</title>
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #222;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 18px;
+            box-sizing: border-box;
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #e50914;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        a { color: white; }
+        #message { margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<script>
+const token = sessionStorage.getItem("adminToken");
+if (!token) window.location.href = "login.html";
+</script>
+
+<div class="container">
+    <h1>Edit Movie</h1>
+
+    <form id="editForm">
+        <label>Movie Title</label>
+        <input type="text" id="title" required>
+
+        <label>Category</label>
+        <select id="category" required></select>
+
+        <label>Release Year</label>
+        <input type="number" id="year" required>
+
+        <label>Poster URL</label>
+        <input type="url" id="poster">
+
+        <label>Video URL</label>
+        <input type="url" id="video">
+
+        <label>Description</label>
+        <textarea id="description" rows="5"></textarea>
+
+        <button type="submit" id="saveButton">Save Changes</button>
+    </form>
+
+    <p id="message"></p>
+    <a href="manage-movies.html">← Back to Manage Movies</a>
+</div>
+
+<script>
+const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
+const movieId = new URLSearchParams(window.location.search).get("id");
+
+const form = document.getElementById("editForm");
+const message = document.getElementById("message");
+const categorySelect = document.getElementById("category");
+
+async function loadMovie() {
+    try {
+        if (!movieId) throw new Error("Movie ID is missing.");
+
+        const [movieResponse, categoryResponse] = await Promise.all([
+            fetch(API_URL + "/api/movies"),
+            fetch(API_URL + "/api/categories")
+        ]);
+
+        const movieData = await movieResponse.json();
+        const categoryData = await categoryResponse.json();
+
+        if (!movieResponse.ok || !movieData.success) {
+            throw new Error("Could not load movies.");
+        }
+
+        if (!categoryResponse.ok || !categoryData.success) {
+            throw new Error("Could not load categories.");
+        }
+
+        categorySelect.innerHTML = "";
+
+        categoryData.categories.forEach(category => {
+            const option = document.createElement("option");
+            option.value = category.category_id;
+            option.textContent = category.category_name;
+            categorySelect.appendChild(option);
+        });
+
+        const movie = movieData.movies.find(
+            item => String(item.movie_id) === String(movieId)
+        );
+
+        if (!movie) throw new Error("Movie not found.");
+
+        document.getElementById("title").value = movie.title;
+        categorySelect.value = movie.category_id;
+        document.getElementById("year").value = movie.release_year;
+        document.getElementById("poster").value = movie.poster_url || "";
+        document.getElementById("video").value = movie.video_url || "";
+        document.getElementById("description").value = movie.description || "";
+
+    } catch (error) {
+        message.textContent = error.message;
+        message.style.color = "#ff5555";
+    }
+}
+
+form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const button = document.getElementById("saveButton");
+    button.disabled = true;
+    message.textContent = "Saving changes...";
+
+    try {
+        const response = await fetch(API_URL + "/api/movies/" + movieId, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({
+                title: document.getElementById("title").value,
+                category_id: Number(categorySelect.value),
+                release_year: Number(document.getElementById("year").value),
+                poster_url: document.getElementById("poster").value,
+                video_url: document.getElementById("video").value,
+                description: document.getElementById("description").value
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Update failed.");
+        }
+
+        message.textContent = "Movie updated successfully!";
+        message.style.color = "#4caf50";
+
+    } catch (error) {
+        message.textContent = error.message;
+        message.style.color = "#ff5555";
+    } finally {
+        button.disabled = false;
+    }
+});
+
+loadMovie();
+</script>
+
+</body>
+</html>
