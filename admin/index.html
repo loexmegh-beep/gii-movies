@@ -76,7 +76,16 @@ if (!token) {
 
 <header class="admin-header">
     <h2>GII MOVIES ADMIN</h2>
-    <a href="../index.html">Visit Website</a>
+    <button onclick="logoutAdmin()" style="background:#e50914;color:white;padding:10px 18px;border:0;border-radius:5px;cursor:pointer;">
+    Logout
+</button>
+
+<script>
+function logoutAdmin() {
+    sessionStorage.removeItem("adminToken");
+    window.location.href = "login.html";
+}
+</script>
 </header>
 
 <main class="dashboard">
