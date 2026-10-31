@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | GII MOVIES</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        .register-container {
+            width: 90%;
+            max-width: 450px;
+            margin: 55px auto;
+            padding: 35px;
+            background: #171717;
+            border-radius: 10px;
+        }
+
+        .register-container h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .register-container input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 17px;
+            background: #292929;
+            border: 1px solid #444;
+            border-radius: 5px;
+            color: white;
+        }
+
+        .register-container button {
+            width: 100%;
+            padding: 14px;
+            background: #e50914;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+
+        .register-container p {
+            text-align: center;
+            margin-top: 20px;
+            color: #aaa;
+        }
+
+        .register-container a {
+            color: #e50914;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">GII MOVIES</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="movies.html">Movies</a>
+        <a href="login.html">Login</a>
+    </nav>
+</header>
+
+<div class="register-container">
+    <h1>Create Account</h1>
+
+    <form onsubmit="registerUser(event)">
+        <input type="text" id="fullname" placeholder="Full Name" required>
+
+        <input type="email" id="email" placeholder="Email Address" required>
+
+        <input type="password" id="password" placeholder="Password" minlength="6" required>
+
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+
+        <button type="submit">CREATE ACCOUNT</button>
+    </form>
+
+    <p>Already have an account?
+        <a href="login.html">Login</a>
+    </p>
+</div>
+
+<footer>
+    <p>© 2026 GII MOVIES. All Rights Reserved.</p>
+</footer>
+
+<script>
+function registerUser(event) {
+    event.preventDefault();
+
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (password !== confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+    }
+
+    alert("Registration form is ready. Database connection will be added later!");
+}
+</script>
+
+</body>
+</html>
