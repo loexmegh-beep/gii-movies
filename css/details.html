@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details | GII MOVIES</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .details {
+            padding: 60px 7%;
+            min-height: 75vh;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .details img {
+            width: 280px;
+            max-width: 100%;
+            height: 390px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .info { max-width: 550px; }
+        .info h1 { font-size: 38px; margin-bottom: 15px; }
+        .info p { color: #ccc; line-height: 1.8; margin-bottom: 20px; }
+        .meta { color: #e50914; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">GII MOVIES</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="movies.html">Movies</a>
+        <a href="login.html">Login</a>
+    </nav>
+</header>
+
+<section class="details">
+    <img id="poster" src="" alt="Movie poster">
+
+    <div class="info">
+        <h1 id="title">Movie Title</h1>
+        <div class="meta" id="meta"></div>
+        <p id="description"></p>
+        <a href="watch.html" class="btn">▶ Watch Movie</a>
+        <br><br>
+        <a href="movies.html">← Back to Movies</a>
+    </div>
+</section>
+
+<footer>
+    <p>© 2026 GII MOVIES. All Rights Reserved.</p>
+</footer>
+
+<script>
+const movieData = {
+    "dark-world": {
+        title: "Dark World",
+        category: "Action",
+        year: "2026",
+        poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=500",
+        description: "Enter a mysterious world full of action, danger and unexpected adventures."
+    },
+    "lost-kingdom": {
+        title: "Lost Kingdom",
+        category: "Adventure",
+        year: "2026",
+        poster: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500",
+        description: "Discover a lost kingdom and follow an unforgettable adventure."
+    },
+    "wild-journey": {
+        title: "Wild Journey",
+        category: "Drama",
+        year: "2026",
+        poster: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=500",
+        description: "A dramatic journey about courage, friendship and difficult choices."
+    },
+    "night-mystery": {
+        title: "Night Mystery",
+        category: "Thriller",
+        year: "2026",
+        poster: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=500",
+        description: "A mysterious night brings secrets and unexpected discoveries."
+    }
+};
+
+const movieId = new URLSearchParams(window.location.search).get("movie");
+const movie = movieData[movieId];
+
+if (movie) {
+    document.getElementById("title").textContent = movie.title;
+    document.getElementById("meta").textContent =
+        movie.category + " • " + movie.year;
+    document.getElementById("poster").src = movie.poster;
+    document.getElementById("description").textContent = movie.description;
+} else {
+    document.getElementById("title").textContent = "Movie Not Found";
+    document.getElementById("description").textContent =
+        "Please return to the movies page and select a movie.";
+    document.getElementById("poster").style.display = "none";
+}
+</script>
+
+</body>
+</html>
