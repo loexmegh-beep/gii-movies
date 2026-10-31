@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Movie | GII MOVIES</title>
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        .form-container {
+            width: 90%;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 30px;
+            background: #191919;
+            border-radius: 10px;
+        }
+
+        .form-container h1 {
+            margin-bottom: 25px;
+        }
+
+        .form-container label {
+            display: block;
+            margin: 15px 0 8px;
+        }
+
+        .form-container input,
+        .form-container textarea,
+        .form-container select {
+            width: 100%;
+            padding: 13px;
+            background: #292929;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+
+        .form-container textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 22px;
+            background: #e50914;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            color: #e50914;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">GII MOVIES ADMIN</div>
+    <nav>
+        <a href="index.html">Dashboard</a>
+        <a href="../index.html">Website</a>
+    </nav>
+</header>
+
+<div class="form-container">
+    <h1>Add New Movie</h1>
+
+    <form id="movieForm">
+        <label for="title">Movie Title</label>
+        <input type="text" id="title" placeholder="Enter movie title" required>
+
+        <label for="category">Category</label>
+        <select id="category" required>
+            <option value="">Select category</option>
+            <option>Action</option>
+            <option>Drama</option>
+            <option>Adventure</option>
+            <option>Comedy</option>
+            <option>Thriller</option>
+            <option>Romance</option>
+        </select>
+
+        <label for="year">Release Year</label>
+        <input type="number" id="year" placeholder="2026" required>
+
+        <label for="poster">Poster Image URL</label>
+        <input type="url" id="poster" placeholder="https://example.com/poster.jpg" required>
+
+        <label for="description">Movie Description</label>
+        <textarea id="description" placeholder="Describe this movie..." required></textarea>
+
+        <button type="submit">SAVE MOVIE</button>
+    </form>
+
+    <a class="back" href="index.html">← Back to Dashboard</a>
+</div>
+
+<script>
+document.getElementById("movieForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const movie = {
+        title: document.getElementById("title").value,
+        category: document.getElementById("category").value,
+        year: document.getElementById("year").value,
+        poster: document.getElementById("poster").value,
+        description: document.getElementById("description").value
+    };
+
+    console.log("Movie information:", movie);
+
+    alert("Movie form completed! Database connection will be added later.");
+
+    this.reset();
+});
+</script>
+
+</body>
+</html>
