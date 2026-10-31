@@ -6,29 +6,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Movies | GII MOVIES</title>
     <link rel="stylesheet" href="css/style.css">
+
     <style>
-        .page-title { padding: 40px 6% 10px; }
-        .movie-link { display: block; }
-        .movie-card { cursor: pointer; }
-        .movie-card img { height: 250px; object-fit: cover; }
+        .page-title {
+            padding: 40px 6% 10px;
+        }
+
         .category {
             margin: 20px 6%;
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
         }
-        .category a {
+
+        .category button {
             background: #222;
+            color: white;
+            border: none;
             padding: 10px 18px;
             border-radius: 20px;
+            cursor: pointer;
         }
-        .category a:hover { background: #e50914; }
+
+        .category button:hover {
+            background: #e50914;
+        }
+
+        .movie-card img {
+            height: 250px;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .movie-link {
+            display: block;
+            text-decoration: none;
+            color: white;
+        }
+
+        #moviesContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        #loadingMessage {
+            padding: 20px;
+            color: white;
+        }
     </style>
 </head>
+
 <body>
 
 <header>
     <div class="logo">GII MOVIES</div>
+
     <nav>
         <a href="index.html">Home</a>
         <a href="movies.html">Movies</a>
@@ -39,14 +72,12 @@
 
 <h1 class="page-title">Explore All Movies</h1>
 
-<div class="category">
-    <a href="#all">All</a>
-    <a href="#action">Action</a>
-    <a href="#drama">Drama</a>
-    <a href="#adventure">Adventure</a>
+<div class="category" id="categoryFilters">
+    <button onclick="filterCategory('all')">All</button>
 </div>
 
-<section class="content" id="all">
+<section class="content">
+
     <input
         type="text"
         id="searchInput"
@@ -55,41 +86,10 @@
         onkeyup="searchMovies()"
     >
 
-    <div class="movies">
+    <p id="loadingMessage">Loading movies...</p>
 
-        <a class="movie-link" href="details.html?movie=dark-world">
-            <div class="movie-card">
-                <img src="https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=500" alt="Dark World">
-                <h3>Dark World</h3>
-                <p>Action • 2026</p>
-            </div>
-        </a>
+    <div class="movies" id="moviesContainer"></div>
 
-        <a class="movie-link" href="details.html?movie=lost-kingdom">
-            <div class="movie-card">
-                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500" alt="Lost Kingdom">
-                <h3>Lost Kingdom</h3>
-                <p>Adventure • 2026</p>
-            </div>
-        </a>
-
-        <a class="movie-link" href="details.html?movie=wild-journey">
-            <div class="movie-card">
-                <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=500" alt="Wild Journey">
-                <h3>Wild Journey</h3>
-                <p>Drama • 2026</p>
-            </div>
-        </a>
-
-        <a class="movie-link" href="details.html?movie=night-mystery">
-            <div class="movie-card">
-                <img src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=500" alt="Night Mystery">
-                <h3>Night Mystery</h3>
-                <p>Thriller • 2026</p>
-            </div>
-        </a>
-
-    </div>
 </section>
 
 <footer>
@@ -97,5 +97,7 @@
 </footer>
 
 <script src="js/main.js"></script>
+
 </body>
 </html>
+
