@@ -18,6 +18,8 @@
             background: #e50914;
             border-radius: 5px;
             margin: 20px 0;
+            color: white;
+            text-decoration: none;
         }
 
         .table-wrapper {
@@ -51,6 +53,16 @@
             cursor: pointer;
         }
 
+        .edit-button {
+            background: #198754;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
         #message {
             margin: 15px 0;
         }
@@ -58,6 +70,14 @@
 </head>
 
 <body>
+
+<script>
+const token = sessionStorage.getItem("adminToken");
+
+if (!token) {
+    window.location.href = "login.html";
+}
+</script>
 
 <header>
     <div class="logo">GII MOVIES ADMIN</div>
@@ -71,7 +91,9 @@
 
     <h1>Manage Movies</h1>
 
-    <a href="add-movie.html" class="add-button">+ Add New Movie</a>
+    <a href="add-movie.html" class="add-button">
+        + Add New Movie
+    </a>
 
     <p id="message">Loading movies...</p>
 
@@ -98,11 +120,6 @@
 
 <script>
 const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
-const token = sessionStorage.getItem("adminToken");
-
-if (!token) {
-    window.location.href = "login.html";
-}
 
 // LOAD MOVIES FROM DATABASE
 async function loadMovies() {
@@ -140,12 +157,27 @@ async function loadMovies() {
 
             const action = document.createElement("td");
 
-            const button = document.createElement("button");
-            button.textContent = "Delete";
-            button.className = "delete-button";
-            button.onclick = () => deleteMovie(movie.movie_id);
+            // EDIT BUTTON
+            const editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+            editButton.className = "edit-button";
 
-            action.appendChild(button);
+            editButton.onclick = function() {
+                window.location.href =
+                    "edit-movie.html?id=" + movie.movie_id;
+            };
+
+            // DELETE BUTTON
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.className = "delete-button";
+
+            deleteButton.onclick = function() {
+                deleteMovie(movie.movie_id);
+            };
+
+            action.append(editButton, deleteButton);
+
             row.append(title, category, year, action);
             table.appendChild(row);
         });
