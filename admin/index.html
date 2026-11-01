@@ -7,15 +7,19 @@
     <title>Admin Dashboard | GII MOVIES</title>
     <link rel="stylesheet" href="../css/style.css">
 
-    <style>
-        body { min-height: 100vh; }
-<script>
-const token = sessionStorage.getItem("adminToken");
+    <script>
+        const token = sessionStorage.getItem("adminToken");
 
-if (!token) {
-    window.location.href = "login.html";
-}
-</script>
+        if (!token) {
+            window.location.href = "login.html";
+        }
+    </script>
+
+    <style>
+        body {
+            min-height: 100vh;
+        }
+
         .admin-header {
             padding: 22px 5%;
             background: #111;
@@ -24,13 +28,17 @@ if (!token) {
             align-items: center;
         }
 
-        .admin-header h2 { color: #e50914; }
+        .admin-header h2 {
+            color: #e50914;
+        }
 
         .dashboard {
             padding: 35px 5%;
         }
 
-        .dashboard h1 { margin-bottom: 25px; }
+        .dashboard h1 {
+            margin-bottom: 25px;
+        }
 
         .stats {
             display: grid;
@@ -65,9 +73,24 @@ if (!token) {
         .admin-actions a {
             display: inline-block;
             background: #e50914;
+            color: white;
+            text-decoration: none;
             padding: 13px 20px;
             border-radius: 5px;
             margin: 10px 10px 0 0;
+        }
+
+        .admin-actions a:hover {
+            background: #b00610;
+        }
+
+        .logout-btn {
+            background: #e50914;
+            color: white;
+            padding: 10px 18px;
+            border: 0;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -76,16 +99,10 @@ if (!token) {
 
 <header class="admin-header">
     <h2>GII MOVIES ADMIN</h2>
-    <button onclick="logoutAdmin()" style="background:#e50914;color:white;padding:10px 18px;border:0;border-radius:5px;cursor:pointer;">
-    Logout
-</button>
 
-<script>
-function logoutAdmin() {
-    sessionStorage.removeItem("adminToken");
-    window.location.href = "login.html";
-}
-</script>
+    <button class="logout-btn" onclick="logoutAdmin()">
+        Logout
+    </button>
 </header>
 
 <main class="dashboard">
@@ -112,20 +129,19 @@ function logoutAdmin() {
     </div>
 
     <div class="admin-actions">
-    <h2>Manage Website</h2>
 
-    <a href="add-movie.html">+ Add Movie</a>
-
-    <a href="manage-movies.html">Manage Movies</a>
-
-    <a href="../movies.html">View Movies</a>
-
-    <a href="../index.html">View Homepage</a>
-</div>
         <h2>Manage Website</h2>
 
+        <a href="add-movie.html">+ Add Movie</a>
+
+        <a href="manage-movies.html">Manage Movies</a>
+
+        <a href="users.html">Manage Users</a>
+
         <a href="../movies.html">View Movies</a>
+
         <a href="../index.html">View Homepage</a>
+
     </div>
 
 </main>
@@ -133,6 +149,13 @@ function logoutAdmin() {
 <footer>
     <p>© 2026 GII MOVIES Admin Panel</p>
 </footer>
+
+<script>
+    function logoutAdmin() {
+        sessionStorage.removeItem("adminToken");
+        window.location.href = "login.html";
+    }
+</script>
 
 </body>
 </html>
