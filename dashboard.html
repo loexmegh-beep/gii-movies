@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard | GII MOVIES</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        body {
+            background: #101010;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            width: 90%;
+            max-width: 1000px;
+            margin: 50px auto;
+        }
+
+        .welcome {
+            background: #1b1b1b;
+            padding: 30px;
+            border-radius: 10px;
+            border-left: 5px solid #e50914;
+            margin-bottom: 25px;
+        }
+
+        .welcome h1 {
+            margin-bottom: 10px;
+        }
+
+        .profile {
+            background: #1b1b1b;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        .profile h2 {
+            color: #e50914;
+            margin-bottom: 20px;
+        }
+
+        .info {
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .info span {
+            color: #aaa;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .actions a,
+        .actions button {
+            padding: 12px 22px;
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .actions a:hover,
+        .actions button:hover {
+            background: #b00610;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #aaa;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">GII MOVIES</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="movies.html">Movies</a>
+    </nav>
+</header>
+
+<main class="dashboard">
+
+    <section class="welcome">
+        <h1>Welcome, <span id="userName">User</span>!</h1>
+        <p>Welcome to your GII MOVIES account dashboard.</p>
+    </section>
+
+    <section class="profile">
+        <h2>My Profile</h2>
+
+        <div class="info">
+            <span>Full Name:</span>
+            <strong id="fullName">Loading...</strong>
+        </div>
+
+        <div class="info">
+            <span>Email Address:</span>
+            <strong id="email">Loading...</strong>
+        </div>
+
+        <div class="info">
+            <span>Account Role:</span>
+            <strong id="role">User</strong>
+        </div>
+
+        <div class="actions">
+            <a href="movies.html">Browse Movies</a>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <p>© 2026 GII MOVIES. All Rights Reserved.</p>
+</footer>
+
+<script>
+    const token = localStorage.getItem("userToken");
+    const savedUser = localStorage.getItem("loggedInUser");
+
+    if (!token || !savedUser) {
+        window.location.href = "login.html";
+    } else {
+        try {
+            const user = JSON.parse(savedUser);
+
+            document.getElementById("userName").textContent =
+                user.full_name;
+
+            document.getElementById("fullName").textContent =
+                user.full_name;
+
+            document.getElementById("email").textContent =
+                user.email;
+
+            document.getElementById("role").textContent =
+                user.role;
+
+        } catch (error) {
+            logout();
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("loggedInUser");
+
+        window.location.href = "login.html";
+    }
+</script>
+
+</body>
+</html>
