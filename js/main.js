@@ -267,8 +267,8 @@ function displayMovies(movies) {
 
         favoriteButton.textContent =
             favoriteMovies.has(String(movie.movie_id))
-                ? "❤️ Remove from Favorites"
-                : "🤍 Add to Favorites";
+                ? "😒 Remove from Favorites"
+                : "🤞❤ Add to Favorites";
 
         favoriteButton.onclick = () => {
             toggleFavorite(movie.movie_id, favoriteButton);
