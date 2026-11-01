@@ -129,41 +129,71 @@
 <footer>
     <p>© 2026 GII MOVIES. All Rights Reserved.</p>
 </footer>
-
 <script>
+
+const API_URL =
+    "https://agasobanuyerwanda.loexmegh.workers.dev";
+
+async function loadUserProfile() {
+
     const token = localStorage.getItem("userToken");
-    const savedUser = localStorage.getItem("loggedInUser");
 
-    if (!token || !savedUser) {
+    if (!token) {
         window.location.href = "login.html";
-    } else {
-        try {
-            const user = JSON.parse(savedUser);
-
-            document.getElementById("userName").textContent =
-                user.full_name;
-
-            document.getElementById("fullName").textContent =
-                user.full_name;
-
-            document.getElementById("email").textContent =
-                user.email;
-
-            document.getElementById("role").textContent =
-                user.role;
-
-        } catch (error) {
-            logout();
-        }
+        return;
     }
 
-    function logout() {
+    try {
+
+        const response = await fetch(
+            API_URL + "/api/user/me",
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error("Session expired. Please login again.");
+        }
+
+        const user = data.user;
+
+        document.getElementById("userName").textContent =
+            user.full_name;
+
+        document.getElementById("fullName").textContent =
+            user.full_name;
+
+        document.getElementById("email").textContent =
+            user.email;
+
+        document.getElementById("role").textContent =
+            user.role;
+
+    } catch (error) {
+
         localStorage.removeItem("userToken");
         localStorage.removeItem("loggedInUser");
 
+        alert(error.message);
         window.location.href = "login.html";
     }
-</script>
+}
 
+function logout() {
+
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("loggedInUser");
+
+    window.location.href = "login.html";
+}
+
+loadUserProfile();
+</script>
 </body>
 </html>
