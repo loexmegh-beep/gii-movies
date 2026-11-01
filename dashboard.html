@@ -80,18 +80,6 @@
             padding: 25px;
             color: #aaa;
         }
-        .actions button {
-    background: #e50914;
-    color: white;
-    padding: 12px 22px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.actions button:hover {
-    background: #b00610;
-}
     </style>
 </head>
 
@@ -107,11 +95,13 @@
 
 <main class="dashboard">
 
-  <div class="actions">
-    <a href="movies.html">Browse Movies</a>
-    <button type="button" onclick="logout()">LOGOUT</button>
-</div>
+    <!-- WELCOME SECTION -->
+    <section class="welcome">
+        <h1>Welcome, <span id="userName">Loading...</span>!</h1>
+        <p>Welcome to your GII MOVIES account dashboard.</p>
+    </section>
 
+    <!-- PROFILE SECTION -->
     <section class="profile">
         <h2>My Profile</h2>
 
@@ -127,12 +117,12 @@
 
         <div class="info">
             <span>Account Role:</span>
-            <strong id="role">User</strong>
+            <strong id="role">Loading...</strong>
         </div>
 
         <div class="actions">
             <a href="movies.html">Browse Movies</a>
-            <button onclick="logout()">Logout</button>
+            <button type="button" onclick="logout()">LOGOUT</button>
         </div>
     </section>
 
@@ -141,10 +131,9 @@
 <footer>
     <p>© 2026 GII MOVIES. All Rights Reserved.</p>
 </footer>
-<script>
 
-const API_URL =
-    "https://agasobanuyerwanda.loexmegh.workers.dev";
+<script>
+const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
 
 async function loadUserProfile() {
 
@@ -157,37 +146,29 @@ async function loadUserProfile() {
 
     try {
 
-        const response = await fetch(
-            API_URL + "/api/user/me",
-            {
-                method: "GET",
-                headers: {
-                    "Authorization": "Bearer " + token
-                }
+        const response = await fetch(API_URL + "/api/user/me", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + token
             }
-        );
+        });
 
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-            throw new Error("Session expired. Please login again.");
+            throw new Error(data.message || "Session expired. Please login again.");
         }
 
         const user = data.user;
 
-        document.getElementById("userName").textContent =
-            user.full_name;
-
-        document.getElementById("fullName").textContent =
-            user.full_name;
-
-        document.getElementById("email").textContent =
-            user.email;
-
-        document.getElementById("role").textContent =
-            user.role;
+        document.getElementById("userName").textContent = user.full_name;
+        document.getElementById("fullName").textContent = user.full_name;
+        document.getElementById("email").textContent = user.email;
+        document.getElementById("role").textContent = user.role;
 
     } catch (error) {
+
+        console.error("Dashboard Error:", error);
 
         localStorage.removeItem("userToken");
         localStorage.removeItem("loggedInUser");
@@ -207,5 +188,6 @@ function logout() {
 
 loadUserProfile();
 </script>
+
 </body>
 </html>
