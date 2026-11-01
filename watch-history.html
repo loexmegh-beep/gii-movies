@@ -1,0 +1,399 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watch History | GII MOVIES</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #080d18;
+    color: white;
+}
+
+header {
+    background: #111827;
+    padding: 20px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.logo {
+    color: #00d4ff;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+header a {
+    color: white;
+    text-decoration: none;
+}
+
+.container {
+    padding: 35px 5%;
+}
+
+h1 {
+    color: #00d4ff;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #9baac0;
+    margin-bottom: 25px;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.refresh {
+    background: #00c8ed;
+    color: #00121b;
+}
+
+.history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 22px;
+}
+
+.card {
+    background: #121d30;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    background: #182438;
+}
+
+.card-content {
+    padding: 14px;
+}
+
+.card h3 {
+    margin-bottom: 8px;
+    font-size: 17px;
+}
+
+.category {
+    color: #00d4ff;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.date {
+    color: #aebbd0;
+    font-size: 12px;
+    margin-bottom: 15px;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.watch {
+    background: #00c8ed;
+    color: #00121b;
+    flex: 1;
+}
+
+.remove {
+    background: #e53945;
+    color: white;
+}
+
+#message {
+    text-align: center;
+    padding: 35px 10px;
+    color: #00d4ff;
+}
+
+.empty {
+    color: #9baac0;
+    text-align: center;
+    padding: 50px 10px;
+}
+
+@media(max-width: 500px) {
+    .history-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .card img {
+        height: 190px;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">GII MOVIES</div>
+    <a href="movies.html">← Back to Movies</a>
+</header>
+
+<main class="container">
+
+    <h1>MY WATCH HISTORY</h1>
+
+    <p class="subtitle">
+        Continue watching your favorite movies.
+    </p>
+
+    <div class="top-bar">
+        <p id="total">Loading history...</p>
+        <button class="refresh" onclick="loadHistory()">
+            ↻ REFRESH
+        </button>
+    </div>
+
+    <p id="message"></p>
+
+    <div class="history-grid" id="historyContainer"></div>
+
+</main>
+
+<script>
+const API_URL =
+"https://agasobanuyerwanda.loexmegh.workers.dev";
+
+const token = localStorage.getItem("userToken");
+
+
+// CHECK LOGIN
+if (!token) {
+
+    document.getElementById("message").textContent =
+        "Please login to view your watch history.";
+
+} else {
+
+    loadHistory();
+
+}
+
+
+// LOAD WATCH HISTORY
+async function loadHistory() {
+
+    const container =
+        document.getElementById("historyContainer");
+
+    const message =
+        document.getElementById("message");
+
+    const total =
+        document.getElementById("total");
+
+    if (!token) return;
+
+    container.innerHTML = "";
+
+    message.textContent = "Loading watch history...";
+
+    try {
+
+        const res = await fetch(
+            API_URL + "/api/watch-history",
+            {
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            }
+        );
+
+        const data = await res.json();
+
+        if (res.status === 401) {
+            throw new Error("Session expired. Please login again.");
+        }
+
+        if (!res.ok || !data.success) {
+            throw new Error(data.message || "Unable to load history.");
+        }
+
+        const history = data.history || [];
+
+        total.textContent =
+            history.length + " MOVIES WATCHED";
+
+        message.textContent = "";
+
+        if (history.length === 0) {
+
+            message.textContent =
+                "You haven't watched any movies yet.";
+
+            message.className = "empty";
+
+            return;
+        }
+
+        history.forEach(movie => {
+
+            const card = document.createElement("div");
+
+            card.className = "card";
+
+            const img = document.createElement("img");
+
+            img.src = movie.poster_url || "";
+
+            img.alt = movie.title || "Movie";
+
+            const content = document.createElement("div");
+
+            content.className = "card-content";
+
+            const title = document.createElement("h3");
+
+            title.textContent = movie.title;
+
+            const category = document.createElement("p");
+
+            category.className = "category";
+
+            category.textContent =
+                movie.category_name || "Movie";
+
+            const date = document.createElement("p");
+
+            date.className = "date";
+
+            const watchedDate =
+                new Date(movie.watched_at.replace(" ", "T") + "Z");
+
+            date.textContent =
+                "Watched: " +
+                (isNaN(watchedDate.getTime())
+                    ? movie.watched_at
+                    : watchedDate.toLocaleString());
+
+            const actions = document.createElement("div");
+
+            actions.className = "actions";
+
+            const watchButton = document.createElement("button");
+
+            watchButton.className = "watch";
+
+            watchButton.textContent = "WATCH AGAIN";
+
+            watchButton.onclick = () => {
+
+                window.location.href =
+                    "details.html?id=" + movie.movie_id;
+
+            };
+
+            const removeButton = document.createElement("button");
+
+            removeButton.className = "remove";
+
+            removeButton.textContent = "REMOVE";
+
+            removeButton.onclick = () => {
+
+                deleteHistory(movie.history_id);
+
+            };
+
+            actions.append(watchButton, removeButton);
+
+            content.append(title, category, date, actions);
+
+            card.append(img, content);
+
+            container.appendChild(card);
+
+        });
+
+    } catch (error) {
+
+        message.textContent = error.message;
+
+        message.className = "empty";
+
+    }
+}
+
+
+// DELETE HISTORY ITEM
+async function deleteHistory(id) {
+
+    if (!confirm("Remove this movie from your watch history?")) {
+        return;
+    }
+
+    try {
+
+        const res = await fetch(
+            API_URL + "/api/watch-history/" + id,
+            {
+                method: "DELETE",
+
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            throw new Error(data.message || "Unable to remove movie.");
+        }
+
+        loadHistory();
+
+    } catch (error) {
+
+        alert(error.message);
+
+    }
+}
+</script>
+
+</body>
+</html>
