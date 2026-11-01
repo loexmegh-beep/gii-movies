@@ -379,3 +379,14 @@ function changeHero() {
 if (heroSlides.length > 1) {
     setInterval(changeHero, 6000);
 }
+
+const menuToggle = document.getElementById("menuToggle");
+const navbar = document.getElementById("navbar");
+
+menuToggle.addEventListener("click", function () {
+    navbar.classList.toggle("show");
+
+    menuToggle.textContent =
+        navbar.classList.contains("show") ? "✕" : "☰";
+});
+
