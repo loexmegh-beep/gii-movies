@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Favorites | GII MOVIES</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #080808;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background: #111;
+            padding: 20px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #292929;
+        }
+
+        .logo {
+            color: #e50914;
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+
+        header a:hover {
+            color: #e50914;
+        }
+
+        .container {
+            padding: 35px 6%;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #aaa;
+            margin-bottom: 25px;
+        }
+
+        #movies {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 22px;
+        }
+
+        .movie {
+            background: #181818;
+            border-radius: 9px;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .movie:hover {
+            transform: translateY(-5px);
+        }
+
+        .movie img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            background: #333;
+        }
+
+        .movie-info {
+            padding: 14px;
+        }
+
+        .movie-info h3 {
+            margin-bottom: 8px;
+        }
+
+        .movie-info p {
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        button, .watch {
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .watch {
+            background: #e50914;
+            color: white;
+            flex: 1;
+        }
+
+        .remove {
+            background: #333;
+            color: white;
+        }
+
+        .remove:hover {
+            background: #e50914;
+        }
+
+        #message {
+            color: #bbb;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">GII MOVIES</div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="movies.html">Movies</a>
+        <a href="dashboard.html">My Account</a>
+    </nav>
+</header>
+
+<div class="container">
+    <h1>❤️ My Favorites</h1>
+    <p class="subtitle">Movies you have saved to your favorites.</p>
+
+    <div id="movies"></div>
+    <p id="message">Loading your favorites...</p>
+</div>
+
+<script>
+const API = "https://agasobanuyerwanda.loexmegh.workers.dev";
+
+const token = localStorage.getItem("userToken");
+const moviesContainer = document.getElementById("movies");
+const message = document.getElementById("message");
+
+if (!token) {
+    message.textContent = "Please login to view your favorites.";
+} else {
+    loadFavorites();
+}
+
+async function loadFavorites() {
+    try {
+        const response = await fetch(`${API}/api/favorites`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            message.textContent = data.message || "Failed to load favorites.";
+            return;
+        }
+
+        displayFavorites(data.favorites || []);
+
+    } catch (error) {
+        message.textContent = "Connection error. Please try again.";
+    }
+}
+
+function displayFavorites(favorites) {
+    moviesContainer.innerHTML = "";
+
+    if (favorites.length === 0) {
+        message.textContent = "You have not added any favorite movies yet.";
+        return;
+    }
+
+    message.textContent = `${favorites.length} favorite movie(s) found.`;
+
+    favorites.forEach(movie => {
+        const card = document.createElement("div");
+        card.className = "movie";
+
+        const image = document.createElement("img");
+        image.src = movie.poster_url || "";
+        image.alt = movie.title || "Movie poster";
+        image.onerror = () => image.style.display = "none";
+
+        const info = document.createElement("div");
+        info.className = "movie-info";
+
+        const title = document.createElement("h3");
+        title.textContent = movie.title || "Untitled";
+
+        const details = document.createElement("p");
+        details.textContent =
+            `${movie.category_name || "Movie"} • ${movie.release_year || ""}`;
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const watch = document.createElement("a");
+        watch.className = "watch";
+        watch.textContent = "Watch / Details";
+        watch.href = `details.html?id=${encodeURIComponent(movie.movie_id)}`;
+
+        const remove = document.createElement("button");
+        remove.className = "remove";
+        remove.textContent = "Remove";
+        remove.onclick = () => removeFavorite(movie.favorite_id);
+
+        actions.append(watch, remove);
+        info.append(title, details, actions);
+        card.append(image, info);
+
+        moviesContainer.appendChild(card);
+    });
+}
+
+async function removeFavorite(favoriteId) {
+    if (!confirm("Remove this movie from your favorites?")) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${API}/api/favorites/${favoriteId}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            alert(data.message || "Could not remove movie.");
+            return;
+        }
+
+        alert("Movie removed from favorites!");
+        loadFavorites();
+
+    } catch (error) {
+        alert("Connection error. Please try again.");
+    }
+}
+</script>
+
+</body>
+</html>
