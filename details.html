@@ -2,147 +2,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Details | GII MOVIES</title>
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Details | GII MOVIES</title>
 
-    <style>
-        .details {
-            padding: 60px 7%;
-            min-height: 75vh;
-            display: flex;
-            align-items: center;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
-
-        .details img {
-            width: 280px;
-            max-width: 100%;
-            height: 390px;
-            object-fit: cover;
-            border-radius: 10px;
-        }
-
-        .info {
-            max-width: 550px;
-        }
-
-        .info h1 {
-            font-size: 38px;
-            margin-bottom: 15px;
-        }
-
-        .info p {
-            color: #ccc;
-            line-height: 1.8;
-            margin-bottom: 20px;
-        }
-
-        .meta {
-            color: #e50914;
-            margin-bottom: 20px;
-        }
-    </style>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+body {
+    background: #080d18;
+    color: white;
+}
+header {
+    padding: 20px 5%;
+    background: #111827;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo {
+    color: #00d4ff;
+    font-size: 25px;
+    font-weight: bold;
+}
+header a {
+    color: white;
+    text-decoration: none;
+}
+.hero {
+    padding: 45px 5%;
+    display: flex;
+    gap: 35px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.poster {
+    width: 280px;
+    max-width: 100%;
+    height: 390px;
+    object-fit: cover;
+    border-radius: 12px;
+    background: #182438;
+}
+.info {
+    flex: 1;
+    min-width: 250px;
+}
+.info h1 {
+    color: #00d4ff;
+    font-size: 36px;
+    margin-bottom: 15px;
+}
+.meta {
+    color: #aebbd0;
+    margin-bottom: 20px;
+}
+.description {
+    line-height: 1.8;
+    color: #d4dce8;
+    max-width: 650px;
+    margin-bottom: 25px;
+}
+.watch {
+    display: inline-block;
+    padding: 14px 28px;
+    background: #00c8ed;
+    color: #00121b;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 7px;
+}
+.related {
+    padding: 20px 5% 50px;
+}
+.related h2 {
+    margin-bottom: 20px;
+}
+.movies {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 18px;
+}
+.movie-card {
+    background: #121d30;
+    border-radius: 9px;
+    overflow: hidden;
+    cursor: pointer;
+}
+.movie-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+.movie-card h3 {
+    padding: 12px;
+    font-size: 15px;
+}
+#message {
+    padding: 30px 5%;
+    color: #00d4ff;
+}
+@media(max-width: 600px) {
+    .hero { padding-top: 25px; }
+    .poster { width: 100%; height: 350px; }
+    .info h1 { font-size: 28px; }
+}
+</style>
 </head>
 
 <body>
 
 <header>
     <div class="logo">GII MOVIES</div>
-
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="movies.html">Movies</a>
-        <a href="login.html">Login</a>
-    </nav>
+    <a href="movies.html">← Back to Movies</a>
 </header>
 
-<section class="details">
+<p id="message">Loading movie details...</p>
 
-    <img id="poster" src="" alt="Movie poster">
+<section class="hero" id="movieDetails" style="display:none">
+    <img id="poster" class="poster" alt="Movie poster">
 
     <div class="info">
-        <h1 id="title">Loading movie...</h1>
-
-        <div class="meta" id="meta"></div>
-
-        <p id="description"></p>
-
-        <a id="watchButton" href="#" class="btn">
-            ▶ WATCH NOW
+        <h1 id="title"></h1>
+        <p class="meta" id="meta"></p>
+        <p class="description" id="description"></p>
+        <a id="watchButton" class="watch" href="#" target="_blank" rel="noopener" style="display:none">
+            WATCH NOW
         </a>
-
-        <br><br>
-
-        <a href="movies.html">← Back to Movies</a>
     </div>
-
 </section>
 
-<footer>
-    <p>© 2026 GII MOVIES. All Rights Reserved.</p>
-</footer>
+<section class="related">
+    <h2>MORE MOVIES</h2>
+    <div class="movies" id="relatedMovies"></div>
+</section>
 
 <script>
 const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
+const movieId = new URLSearchParams(window.location.search).get("id");
 
 async function loadMovie() {
-
-    const params = new URLSearchParams(window.location.search);
-    const movieId = params.get("id");
-
-    if (!movieId) {
-        showError("Movie ID not found.");
-        return;
-    }
+    const message = document.getElementById("message");
 
     try {
+        if (!movieId || !/^\d+$/.test(movieId)) {
+            throw new Error("Invalid movie ID.");
+        }
 
         const response = await fetch(API_URL + "/api/movies");
         const data = await response.json();
 
-        const movie = data.movies.find(item =>
-            String(item.movie_id) === movieId
+        if (!response.ok || !data.success) {
+            throw new Error("Unable to load movies.");
+        }
+
+        const movies = data.movies || [];
+        const movie = movies.find(item =>
+            String(item.movie_id) === String(movieId)
         );
 
         if (!movie) {
-            showError("Movie not found.");
-            return;
+            throw new Error("Movie not found.");
         }
 
+        document.title = movie.title + " | GII MOVIES";
+
+        document.getElementById("poster").src = movie.poster_url || "";
         document.getElementById("title").textContent = movie.title;
-
         document.getElementById("meta").textContent =
-            (movie.category_name || "Movie") + " • " +
-            (movie.release_year || "");
-
-        document.getElementById("poster").src =
-            movie.poster_url || "https://placehold.co/400x500?text=GII+MOVIES";
+            (movie.category_name || "Movie") + " | " +
+            (movie.release_year || "Year unavailable");
 
         document.getElementById("description").textContent =
             movie.description || "No description available.";
 
-        document.getElementById("watchButton").href =
-            "watch.html?id=" + movie.movie_id;
+        const watchButton = document.getElementById("watchButton");
+
+        if (movie.video_url) {
+            watchButton.href = movie.video_url;
+            watchButton.style.display = "inline-block";
+        }
+
+        document.getElementById("movieDetails").style.display = "flex";
+        message.textContent = "";
+
+        const related = movies.filter(item =>
+            String(item.movie_id) !== String(movieId)
+        );
+
+        const container = document.getElementById("relatedMovies");
+
+        related.forEach(item => {
+            const card = document.createElement("div");
+            card.className = "movie-card";
+
+            const img = document.createElement("img");
+            img.src = item.poster_url || "";
+            img.alt = item.title;
+
+            const heading = document.createElement("h3");
+            heading.textContent = item.title;
+
+            card.append(img, heading);
+
+            card.onclick = () => {
+                window.location.href = "details.html?id=" + item.movie_id;
+            };
+
+            container.appendChild(card);
+        });
 
     } catch (error) {
-
-        console.error(error);
-        showError("Unable to load movie. Please try again.");
-
+        message.textContent = error.message;
     }
-}
-
-function showError(message) {
-
-    document.getElementById("title").textContent = message;
-    document.getElementById("description").textContent =
-        "Please return to the movies page and try again.";
-
-    document.getElementById("poster").style.display = "none";
-    document.getElementById("watchButton").style.display = "none";
 }
 
 loadMovie();
