@@ -13,10 +13,12 @@
     padding: 0;
     font-family: Arial, sans-serif;
 }
+
 body {
     background: #080d18;
     color: white;
 }
+
 header {
     background: #111c2e;
     padding: 20px 5%;
@@ -24,26 +26,31 @@ header {
     justify-content: space-between;
     align-items: center;
 }
+
 .logo {
     color: #00d4ff;
     font-size: 24px;
     font-weight: bold;
 }
+
 header a {
     color: white;
     text-decoration: none;
 }
+
 .container {
     max-width: 650px;
     margin: 50px auto;
     padding: 25px;
 }
+
 .profile {
     background: #121d30;
     border: 1px solid #26364f;
     border-radius: 12px;
     padding: 30px;
 }
+
 .avatar {
     width: 85px;
     height: 85px;
@@ -57,28 +64,34 @@ header a {
     font-weight: bold;
     margin-bottom: 20px;
 }
-h1 {
+
+h1, h2 {
     color: #00d4ff;
     margin-bottom: 25px;
 }
+
 .info {
     padding: 15px 0;
     border-bottom: 1px solid #354761;
 }
+
 .info label {
     display: block;
     color: #aebbd0;
     margin-bottom: 8px;
 }
+
 .info p {
     font-size: 17px;
 }
+
 .buttons {
     display: flex;
     gap: 12px;
     margin-top: 25px;
     flex-wrap: wrap;
 }
+
 button, .movies-link {
     padding: 12px 18px;
     border: none;
@@ -87,17 +100,59 @@ button, .movies-link {
     text-decoration: none;
     font-weight: bold;
 }
+
 .movies-link {
     background: #00c8ed;
     color: #00121b;
 }
+
 .logout {
     background: #e63946;
     color: white;
 }
+
+.edit-section {
+    background: #121d30;
+    border: 1px solid #26364f;
+    border-radius: 12px;
+    padding: 30px;
+    margin-top: 25px;
+}
+
+.edit-section label {
+    display: block;
+    color: #aebbd0;
+    margin: 15px 0 8px;
+}
+
+.edit-section input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #354761;
+    border-radius: 6px;
+    background: #080d18;
+    color: white;
+    outline: none;
+}
+
+.edit-section input:focus {
+    border-color: #00d4ff;
+}
+
+.save-btn {
+    background: #00c8ed;
+    color: #00121b;
+    margin-top: 20px;
+}
+
 #message {
     color: #00d4ff;
     margin-bottom: 15px;
+}
+
+#profileMessage {
+    margin-top: 15px;
+    line-height: 1.5;
 }
 </style>
 </head>
@@ -110,9 +165,12 @@ button, .movies-link {
 </header>
 
 <div class="container">
+
     <p id="message">Loading your profile...</p>
 
+    <!-- USER PROFILE -->
     <div class="profile">
+
         <div class="avatar" id="avatar">U</div>
 
         <h1>MY PROFILE</h1>
@@ -133,10 +191,60 @@ button, .movies-link {
         </div>
 
         <div class="buttons">
-            <a href="movies.html" class="movies-link">BROWSE MOVIES</a>
-            <button class="logout" onclick="logout()">LOGOUT</button>
+            <a href="movies.html" class="movies-link">
+                BROWSE MOVIES
+            </a>
+
+            <button class="logout" onclick="logout()">
+                LOGOUT
+            </button>
         </div>
+
     </div>
+
+    <!-- EDIT PROFILE -->
+    <div class="edit-section">
+
+        <h2>EDIT ACCOUNT SETTINGS</h2>
+
+        <form id="profileForm">
+
+            <label>Full Name</label>
+            <input
+                type="text"
+                id="editFullName"
+                maxlength="100"
+                required
+            >
+
+            <label>Current Password</label>
+            <input
+                type="password"
+                id="currentPassword"
+                placeholder="Required only when changing password"
+                autocomplete="current-password"
+            >
+
+            <label>New Password</label>
+            <input
+                type="password"
+                id="newPassword"
+                placeholder="Enter new password (minimum 8 characters)"
+                minlength="8"
+                maxlength="128"
+                autocomplete="new-password"
+            >
+
+            <button type="submit" class="save-btn" id="saveBtn">
+                SAVE CHANGES
+            </button>
+
+            <p id="profileMessage"></p>
+
+        </form>
+
+    </div>
+
 </div>
 
 <script>
@@ -147,7 +255,9 @@ if (!token) {
     window.location.href = "login.html";
 }
 
+// LOAD USER PROFILE
 async function loadProfile() {
+
     const message = document.getElementById("message");
 
     try {
@@ -177,6 +287,9 @@ async function loadProfile() {
         document.getElementById("avatar").textContent =
             (user.full_name || "U").charAt(0).toUpperCase();
 
+        document.getElementById("editFullName").value =
+            user.full_name || "";
+
         localStorage.setItem("loggedInUser", JSON.stringify(user));
 
         message.textContent = "Profile loaded successfully!";
@@ -186,10 +299,113 @@ async function loadProfile() {
     }
 }
 
+
+// UPDATE PROFILE
+document.getElementById("profileForm").addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const fullName = document.getElementById("editFullName").value.trim();
+
+    const currentPassword =
+        document.getElementById("currentPassword").value;
+
+    const newPassword =
+        document.getElementById("newPassword").value;
+
+    const profileMessage =
+        document.getElementById("profileMessage");
+
+    const saveBtn = document.getElementById("saveBtn");
+
+    if (!fullName) {
+        profileMessage.textContent = "Please enter your full name.";
+        return;
+    }
+
+    if (newPassword && !currentPassword) {
+        profileMessage.textContent = "Enter your current password.";
+        return;
+    }
+
+    if (newPassword && newPassword.length < 8) {
+        profileMessage.textContent =
+            "New password must contain at least 8 characters.";
+        return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = "SAVING...";
+
+    try {
+
+        const response = await fetch(API_URL + "/api/user/profile", {
+
+            method: "PUT",
+
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+
+            body: JSON.stringify({
+                full_name: fullName,
+                current_password: currentPassword,
+                new_password: newPassword
+            })
+
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Profile update failed.");
+        }
+
+        profileMessage.style.color = "#00ff99";
+        profileMessage.textContent = data.message;
+
+        document.getElementById("fullName").textContent = fullName;
+
+        document.getElementById("avatar").textContent =
+            fullName.charAt(0).toUpperCase();
+
+        // UPDATE LOCAL USER INFORMATION
+        const user = JSON.parse(
+            localStorage.getItem("loggedInUser") || "{}"
+        );
+
+        user.full_name = fullName;
+
+        localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+        // CLEAR PASSWORD FIELDS
+        document.getElementById("currentPassword").value = "";
+        document.getElementById("newPassword").value = "";
+
+    } catch (error) {
+
+        profileMessage.style.color = "#ff6b6b";
+        profileMessage.textContent = error.message;
+
+    } finally {
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = "SAVE CHANGES";
+
+    }
+
+});
+
+
+// LOGOUT
 function logout() {
+
     if (confirm("Are you sure you want to logout?")) {
+
         localStorage.removeItem("userToken");
         localStorage.removeItem("loggedInUser");
+
         window.location.href = "login.html";
     }
 }
