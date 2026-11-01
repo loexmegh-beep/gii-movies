@@ -2,102 +2,289 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Movies | GII MOVIES</title>
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Movies | GII MOVIES</title>
 
-    <style>
-        .page-title {
-            padding: 40px 6% 10px;
-        }
-
-        .category {
-            margin: 20px 6%;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .category button {
-            background: #222;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-
-        .category button:hover {
-            background: #e50914;
-        }
-
-        .movie-card img {
-            height: 250px;
-            width: 100%;
-            object-fit: cover;
-        }
-
-        .movie-link {
-            display: block;
-            text-decoration: none;
-            color: white;
-        }
-
-        #moviesContainer {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        #loadingMessage {
-            padding: 20px;
-            color: white;
-        }
-    </style>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+body {
+    background: #080d18;
+    color: white;
+}
+header {
+    padding: 20px 5%;
+    background: #111827;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+    color: #00d4ff;
+}
+header a {
+    color: white;
+    text-decoration: none;
+}
+.hero {
+    padding: 35px 5%;
+}
+.hero h1 {
+    color: #00d4ff;
+    margin-bottom: 10px;
+}
+.hero p { color: #aebbd0; }
+.filters {
+    padding: 0 5% 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 15px;
+}
+input, select {
+    width: 100%;
+    padding: 13px;
+    border-radius: 7px;
+    border: 1px solid #354761;
+    background: #121d30;
+    color: white;
+    outline: none;
+}
+input:focus, select:focus {
+    border-color: #00d4ff;
+}
+#count {
+    padding: 0 5% 20px;
+    color: #00d4ff;
+}
+.movies {
+    padding: 0 5% 50px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 20px;
+}
+.movie-card {
+    background: #121d30;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: .3s;
+}
+.movie-card:hover {
+    transform: translateY(-5px);
+}
+.movie-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    background: #26364f;
+}
+.movie-info { padding: 13px; }
+.movie-info h3 {
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+.movie-info p {
+    color: #aebbd0;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+.details-btn {
+    display: block;
+    text-align: center;
+    padding: 10px;
+    background: #00c8ed;
+    color: #00121b;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+#message {
+    text-align: center;
+    padding: 25px;
+    color: #00d4ff;
+}
+</style>
 </head>
 
 <body>
 
 <header>
     <div class="logo">GII MOVIES</div>
-
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="movies.html">Movies</a>
-        <a href="login.html">Login</a>
-        <a href="register.html">Sign Up</a>
-    </nav>
+    <a href="index.html">HOME</a>
 </header>
 
-<h1 class="page-title">Explore All Movies</h1>
-
-<div class="category" id="categoryFilters">
-    <button onclick="filterCategory('all')">All</button>
-</div>
-
-<section class="content">
-
-    <input
-        type="text"
-        id="searchInput"
-        class="search"
-        placeholder="Search movies..."
-        onkeyup="searchMovies()"
-    >
-
-    <p id="loadingMessage">Loading movies...</p>
-
-    <div class="movies" id="moviesContainer"></div>
-
+<section class="hero">
+    <h1>EXPLORE ALL MOVIES</h1>
+    <p>Discover and watch your favorite movies.</p>
 </section>
 
-<footer>
-    <p>© 2026 GII MOVIES. All Rights Reserved.</p>
-</footer>
+<section class="filters">
+    <input type="search" id="searchInput" placeholder="Search movie title...">
 
-<script src="js/main.js"></script>
+    <select id="categoryFilter">
+        <option value="">All Categories</option>
+    </select>
+
+    <select id="yearFilter">
+        <option value="">All Years</option>
+    </select>
+
+    <select id="sortFilter">
+        <option value="latest">Latest Movies</option>
+        <option value="oldest">Oldest Movies</option>
+        <option value="az">Title A - Z</option>
+        <option value="za">Title Z - A</option>
+    </select>
+</section>
+
+<p id="count">Loading movies...</p>
+<p id="message"></p>
+
+<section class="movies" id="moviesContainer"></section>
+
+<script>
+const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
+
+let allMovies = [];
+
+async function loadMovies() {
+    const message = document.getElementById("message");
+
+    try {
+        const [moviesResponse, categoriesResponse] = await Promise.all([
+            fetch(API_URL + "/api/movies"),
+            fetch(API_URL + "/api/categories")
+        ]);
+
+        const moviesData = await moviesResponse.json();
+        const categoriesData = await categoriesResponse.json();
+
+        if (!moviesResponse.ok || !moviesData.success) {
+            throw new Error("Unable to load movies.");
+        }
+
+        if (!categoriesResponse.ok || !categoriesData.success) {
+            throw new Error("Unable to load categories.");
+        }
+
+        allMovies = moviesData.movies || [];
+
+        const categorySelect = document.getElementById("categoryFilter");
+
+        categoriesData.categories.forEach(category => {
+            const option = document.createElement("option");
+            option.value = category.category_id;
+            option.textContent = category.category_name;
+            categorySelect.appendChild(option);
+        });
+
+        const years = [...new Set(
+            allMovies.map(movie => movie.release_year).filter(Boolean)
+        )].sort((a, b) => b - a);
+
+        const yearSelect = document.getElementById("yearFilter");
+
+        years.forEach(year => {
+            const option = document.createElement("option");
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        });
+
+        message.textContent = "";
+        displayMovies();
+
+    } catch (error) {
+        message.textContent = error.message;
+        document.getElementById("count").textContent = "";
+    }
+}
+
+function displayMovies() {
+    const search = document.getElementById("searchInput").value.toLowerCase().trim();
+    const category = document.getElementById("categoryFilter").value;
+    const year = document.getElementById("yearFilter").value;
+    const sort = document.getElementById("sortFilter").value;
+
+    let filtered = allMovies.filter(movie => {
+        const matchesTitle = (movie.title || "").toLowerCase().includes(search);
+        const matchesCategory = !category || String(movie.category_id) === category;
+        const matchesYear = !year || String(movie.release_year) === year;
+
+        return matchesTitle && matchesCategory && matchesYear;
+    });
+
+    if (sort === "latest") {
+        filtered.sort((a, b) => (b.release_year || 0) - (a.release_year || 0));
+    } else if (sort === "oldest") {
+        filtered.sort((a, b) => (a.release_year || 0) - (b.release_year || 0));
+    } else if (sort === "az") {
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sort === "za") {
+        filtered.sort((a, b) => b.title.localeCompare(a.title));
+    }
+
+    const container = document.getElementById("moviesContainer");
+    container.innerHTML = "";
+
+    document.getElementById("count").textContent =
+        filtered.length + " movie(s) found";
+
+    if (filtered.length === 0) {
+        document.getElementById("message").textContent = "No movies found.";
+        return;
+    }
+
+    document.getElementById("message").textContent = "";
+
+    filtered.forEach(movie => {
+        const card = document.createElement("article");
+        card.className = "movie-card";
+
+        const image = document.createElement("img");
+        image.src = movie.poster_url || "";
+        image.alt = movie.title;
+        image.onerror = () => {
+            image.style.display = "none";
+        };
+
+        const info = document.createElement("div");
+        info.className = "movie-info";
+
+        const title = document.createElement("h3");
+        title.textContent = movie.title;
+
+        const meta = document.createElement("p");
+        meta.textContent =
+            (movie.category_name || "Movie") + " | " +
+            (movie.release_year || "Year unavailable");
+
+        const link = document.createElement("a");
+        link.className = "details-btn";
+        link.href = "details.html?id=" + encodeURIComponent(movie.movie_id);
+        link.textContent = "VIEW DETAILS";
+
+        info.append(title, meta, link);
+        card.append(image, info);
+        container.appendChild(card);
+    });
+}
+
+document.getElementById("searchInput").addEventListener("input", displayMovies);
+document.getElementById("categoryFilter").addEventListener("change", displayMovies);
+document.getElementById("yearFilter").addEventListener("change", displayMovies);
+document.getElementById("sortFilter").addEventListener("change", displayMovies);
+
+loadMovies();
+</script>
 
 </body>
 </html>
-
