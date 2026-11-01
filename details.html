@@ -130,7 +130,13 @@ header a {
         <h1 id="title"></h1>
         <p class="meta" id="meta"></p>
         <p class="description" id="description"></p>
-        <a id="watchButton" class="watch" href="#" target="_blank" rel="noopener" style="display:none">
+
+        <a id="watchButton"
+           class="watch"
+           href="#"
+           target="_blank"
+           rel="noopener"
+           style="display:none">
             WATCH NOW
         </a>
     </div>
@@ -143,17 +149,72 @@ header a {
 
 <script>
 const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
-const movieId = new URLSearchParams(window.location.search).get("id");
 
+const movieId = new URLSearchParams(
+    window.location.search
+).get("id");
+
+
+// SAVE MOVIE TO WATCH HISTORY
+async function saveWatchHistory(id) {
+
+    const token = localStorage.getItem("userToken");
+
+    // Guest users cannot save watch history
+    if (!token) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            API_URL + "/api/watch-history",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+
+                body: JSON.stringify({
+                    movie_id: Number(id)
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            console.error(
+                "Watch history error:",
+                data.message
+            );
+        } else {
+            console.log("Movie saved to Watch History!");
+        }
+
+    } catch (error) {
+        console.error("Watch History Error:", error);
+    }
+}
+
+
+// LOAD MOVIE DETAILS
 async function loadMovie() {
+
     const message = document.getElementById("message");
 
     try {
+
         if (!movieId || !/^\d+$/.test(movieId)) {
             throw new Error("Invalid movie ID.");
         }
 
-        const response = await fetch(API_URL + "/api/movies");
+        const response = await fetch(
+            API_URL + "/api/movies"
+        );
+
         const data = await response.json();
 
         if (!response.ok || !data.success) {
@@ -161,6 +222,7 @@ async function loadMovie() {
         }
 
         const movies = data.movies || [];
+
         const movie = movies.find(item =>
             String(item.movie_id) === String(movieId)
         );
@@ -171,53 +233,86 @@ async function loadMovie() {
 
         document.title = movie.title + " | GII MOVIES";
 
-        document.getElementById("poster").src = movie.poster_url || "";
-        document.getElementById("title").textContent = movie.title;
+        document.getElementById("poster").src =
+            movie.poster_url || "";
+
+        document.getElementById("title").textContent =
+            movie.title;
+
         document.getElementById("meta").textContent =
-            (movie.category_name || "Movie") + " | " +
+            (movie.category_name || "Movie") +
+            " | " +
             (movie.release_year || "Year unavailable");
 
         document.getElementById("description").textContent =
             movie.description || "No description available.";
 
-        const watchButton = document.getElementById("watchButton");
+        const watchButton =
+            document.getElementById("watchButton");
 
         if (movie.video_url) {
+
             watchButton.href = movie.video_url;
+
             watchButton.style.display = "inline-block";
+
+            // SAVE WATCH HISTORY WHEN USER CLICKS WATCH NOW
+            watchButton.addEventListener("click", function() {
+
+                saveWatchHistory(movie.movie_id);
+
+            });
         }
 
-        document.getElementById("movieDetails").style.display = "flex";
+        document.getElementById("movieDetails").style.display =
+            "flex";
+
         message.textContent = "";
 
+
+        // MORE MOVIES
         const related = movies.filter(item =>
             String(item.movie_id) !== String(movieId)
         );
 
-        const container = document.getElementById("relatedMovies");
+        const container =
+            document.getElementById("relatedMovies");
+
+        container.innerHTML = "";
 
         related.forEach(item => {
+
             const card = document.createElement("div");
+
             card.className = "movie-card";
 
             const img = document.createElement("img");
+
             img.src = item.poster_url || "";
+
             img.alt = item.title;
 
             const heading = document.createElement("h3");
+
             heading.textContent = item.title;
 
             card.append(img, heading);
 
             card.onclick = () => {
-                window.location.href = "details.html?id=" + item.movie_id;
+
+                window.location.href =
+                    "details.html?id=" + item.movie_id;
+
             };
 
             container.appendChild(card);
+
         });
 
     } catch (error) {
+
         message.textContent = error.message;
+
     }
 }
 
