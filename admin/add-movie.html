@@ -50,8 +50,34 @@
             cursor: pointer;
         }
 
+        .form-container button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #progressContainer {
+            display: none;
+            margin-top: 20px;
+        }
+
+        #progressBar {
+            width: 100%;
+            height: 15px;
+            background: #444;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #progressFill {
+            width: 0%;
+            height: 100%;
+            background: #00cc66;
+            transition: width 0.2s;
+        }
+
+        #progressText,
         #message {
-            margin-top: 15px;
+            margin-top: 12px;
         }
 
         .back {
@@ -90,13 +116,30 @@
         <input type="number" id="year" min="1900" max="2100" required>
 
         <label for="poster">Poster Image URL</label>
-        <input type="url" id="poster" placeholder="https://example.com/poster.jpg">
+        <input type="url" id="poster"
+               placeholder="https://example.com/poster.jpg">
+
+        <label for="movieFile">Upload Movie From Computer (MP4)</label>
+        <input type="file" id="movieFile" accept=".mp4,video/mp4">
+
+        <p style="color:#aaa;font-size:13px;">
+            Choose an MP4 video from your computer.
+            Maximum file size: 5GB, subject to your hosting plan.
+        </p>
 
         <label for="video">Video URL (Optional)</label>
-        <input type="url" id="video" placeholder="https://example.com/movie.mp4">
+        <input type="url" id="video"
+               placeholder="https://example.com/movie.mp4">
 
         <label for="description">Movie Description</label>
         <textarea id="description" required></textarea>
+
+        <div id="progressContainer">
+            <div id="progressBar">
+                <div id="progressFill"></div>
+            </div>
+            <p id="progressText">0%</p>
+        </div>
 
         <button type="submit" id="saveButton">SAVE MOVIE</button>
 
@@ -109,8 +152,7 @@
 </div>
 
 <script>
-     
-     
+
 const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
 const token = sessionStorage.getItem("adminToken");
 
@@ -118,100 +160,386 @@ if (!token) {
     window.location.href = "login.html";
 }
 
+const form = document.getElementById("movieForm");
+const message = document.getElementById("message");
+const button = document.getElementById("saveButton");
+const fileInput = document.getElementById("movieFile");
+
+const progressContainer = document.getElementById("progressContainer");
+const progressFill = document.getElementById("progressFill");
+const progressText = document.getElementById("progressText");
+
+
+// DISPLAY MESSAGE
+function showMessage(text, color = "#ff5555") {
+    message.style.color = color;
+    message.textContent = text;
+}
+
+
 // LOAD CATEGORIES
 async function loadCategories() {
+
     const select = document.getElementById("category");
 
     try {
-        const response = await fetch(API_URL + "/api/categories");
-        const data = await response.json();
 
-        if (!response.ok || !data.success) {
+        const res = await fetch(API_URL + "/api/categories");
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
             throw new Error("Unable to load categories.");
         }
 
         select.innerHTML = '<option value="">Select category</option>';
 
         data.categories.forEach(category => {
+
             const option = document.createElement("option");
 
             option.value = category.category_id;
             option.textContent = category.category_name;
 
             select.appendChild(option);
+
         });
 
     } catch (error) {
-        select.innerHTML = '<option value="">Categories unavailable</option>';
-        document.getElementById("message").textContent = error.message;
+
+        select.innerHTML =
+            '<option value="">Categories unavailable</option>';
+
+        showMessage(error.message);
+
     }
 }
 
 loadCategories();
 
-// ADD MOVIE
-document.getElementById("movieForm").addEventListener("submit",
-async function(event) {
+
+// CREATE HYPERSERVE UPLOAD SESSION
+async function createUploadSession(file) {
+
+    const res = await fetch(API_URL + "/api/upload/create", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+
+        body: JSON.stringify({
+            filename: file.name
+        })
+
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+        throw new Error(data.message || "Could not start upload.");
+    }
+
+    return data;
+}
+
+
+// UPLOAD FILE WITH PROGRESS
+function uploadFile(uploadUrl, contentType, file) {
+
+    return new Promise((resolve, reject) => {
+
+        const xhr = new XMLHttpRequest();
+
+        xhr.open("PUT", uploadUrl);
+
+        xhr.setRequestHeader("Content-Type", contentType);
+
+        xhr.upload.onprogress = function(event) {
+
+            if (event.lengthComputable) {
+
+                const percent = Math.round(
+                    (event.loaded / event.total) * 100
+                );
+
+                progressFill.style.width = percent + "%";
+                progressText.textContent =
+                    "Uploading: " + percent + "%";
+
+            }
+
+        };
+
+        xhr.onload = function() {
+
+            if (xhr.status >= 200 && xhr.status < 300) {
+                resolve();
+            } else {
+                reject(new Error("Video upload failed. HTTP " + xhr.status));
+            }
+
+        };
+
+        xhr.onerror = function() {
+            reject(new Error("Network error during video upload."));
+        };
+
+        xhr.onabort = function() {
+            reject(new Error("Video upload was cancelled."));
+        };
+
+        xhr.send(file);
+
+    });
+
+}
+
+
+// COMPLETE HYPERSERVE UPLOAD
+async function completeUpload(videoId) {
+
+    const res = await fetch(API_URL + "/api/upload/complete", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+
+        body: JSON.stringify({
+            video_id: videoId
+        })
+
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+        throw new Error(data.message || "Could not complete upload.");
+    }
+
+}
+
+
+// WAIT UNTIL VIDEO IS READY
+async function waitForVideo(videoId) {
+
+    const maxAttempts = 360;
+
+    for (let i = 0; i < maxAttempts; i++) {
+
+        const res = await fetch(
+            API_URL + "/api/upload/" +
+            encodeURIComponent(videoId) + "/status",
+            {
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            throw new Error(data.message || "Could not check video status.");
+        }
+
+        if (data.status === "ready") {
+
+            if (!data.video_url) {
+                throw new Error("Video is ready but playback URL is missing.");
+            }
+
+            return data.video_url;
+
+        }
+
+        if (data.status === "fail") {
+            throw new Error("Hyperserve video processing failed.");
+        }
+
+        progressText.textContent =
+            "Processing video... Please wait.";
+
+        await new Promise(resolve => setTimeout(resolve, 5000));
+
+    }
+
+    throw new Error("Video processing is taking too long. Check again later.");
+
+}
+
+
+// SAVE MOVIE TO DATABASE
+async function saveMovie(movie) {
+
+    const res = await fetch(API_URL + "/api/movies", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+
+        body: JSON.stringify(movie)
+
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to save movie.");
+    }
+
+    return data;
+
+}
+
+
+// MAIN FORM
+form.addEventListener("submit", async function(event) {
 
     event.preventDefault();
 
-    const message = document.getElementById("message");
-    const button = document.getElementById("saveButton");
+    const file = fileInput.files[0];
 
     const movie = {
+
         title: document.getElementById("title").value.trim(),
-        category_id: Number(document.getElementById("category").value),
-        release_year: Number(document.getElementById("year").value),
+
+        category_id: Number(
+            document.getElementById("category").value
+        ),
+
+        release_year: Number(
+            document.getElementById("year").value
+        ),
+
         poster_url: document.getElementById("poster").value.trim(),
-        video_url: document.getElementById("video").value.trim(),
-        description: document.getElementById("description").value.trim()
+
+        description: document.getElementById("description").value.trim(),
+
+        video_url: document.getElementById("video").value.trim()
+
     };
 
-    if (!movie.title || !movie.category_id || !movie.release_year) {
-        message.style.color = "red";
-        message.textContent = "Please complete all required fields.";
+
+    if (!movie.title || !movie.category_id ||
+        !movie.release_year || !movie.description) {
+
+        showMessage("Please complete all required fields.");
         return;
+
     }
+
 
     if (movie.release_year < 1900 || movie.release_year > 2100) {
-        message.style.color = "red";
-        message.textContent = "Enter a valid release year.";
+
+        showMessage("Enter a valid release year.");
         return;
+
     }
 
-    button.disabled = true;
-    button.textContent = "SAVING...";
 
-    try {
-        const response = await fetch(API_URL + "/api/movies", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token
-            },
-            body: JSON.stringify(movie)
-        });
+    if (file) {
 
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            throw new Error(data.message || "Failed to save movie.");
+        if (!file.name.toLowerCase().endsWith(".mp4")) {
+            showMessage("Please choose an MP4 file.");
+            return;
         }
 
-        message.style.color = "#00cc66";
-        message.textContent = "Movie added successfully! Movie ID: " + data.movie_id;
+        const maxSize = 5 * 1024 * 1024 * 1024;
 
-        this.reset();
+        if (file.size > maxSize) {
+            showMessage("File is larger than 5GB.");
+            return;
+        }
+
+    } else if (!movie.video_url) {
+
+        showMessage("Choose an MP4 file or enter a Video URL.");
+        return;
+
+    }
+
+
+    button.disabled = true;
+    button.textContent = "PLEASE WAIT...";
+
+    progressContainer.style.display = "block";
+    progressFill.style.width = "0%";
+    progressText.textContent = "Preparing...";
+
+    showMessage("");
+
+
+    try {
+
+        // UPLOAD LOCAL FILE TO HYPERSERVE
+        if (file) {
+
+            showMessage("Creating upload session...", "#ffffff");
+
+            const upload = await createUploadSession(file);
+
+            if (!upload.upload_url || !upload.content_type || !upload.video_id) {
+                throw new Error("Invalid upload session response.");
+            }
+
+            showMessage("Uploading video...", "#ffffff");
+
+            await uploadFile(
+                upload.upload_url,
+                upload.content_type,
+                file
+            );
+
+            progressFill.style.width = "100%";
+
+            showMessage("Upload completed. Starting video processing...", "#ffffff");
+
+            await completeUpload(upload.video_id);
+
+            const playbackUrl = await waitForVideo(upload.video_id);
+
+            movie.video_url = playbackUrl;
+
+        }
+
+
+        // SAVE MOVIE AFTER VIDEO IS READY
+        progressText.textContent = "Saving movie details...";
+
+        const result = await saveMovie(movie);
+
+        showMessage(
+            "Movie added successfully! Movie ID: " + result.movie_id,
+            "#00cc66"
+        );
+
+        form.reset();
+
+        progressContainer.style.display = "none";
+
 
     } catch (error) {
-        message.style.color = "#ff5555";
-        message.textContent = error.message;
+
+        showMessage(error.message);
 
     } finally {
+
         button.disabled = false;
         button.textContent = "SAVE MOVIE";
+
     }
+
 });
+
 </script>
+
 </body>
 </html>
