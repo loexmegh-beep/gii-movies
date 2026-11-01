@@ -109,6 +109,8 @@
 </div>
 
 <script>
+     
+     
 const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
 const token = sessionStorage.getItem("adminToken");
 
@@ -116,7 +118,7 @@ if (!token) {
     window.location.href = "login.html";
 }
 
-// LOAD CATEGORIES FROM DATABASE
+// LOAD CATEGORIES
 async function loadCategories() {
     const select = document.getElementById("category");
 
@@ -124,23 +126,30 @@ async function loadCategories() {
         const response = await fetch(API_URL + "/api/categories");
         const data = await response.json();
 
+        if (!response.ok || !data.success) {
+            throw new Error("Unable to load categories.");
+        }
+
         select.innerHTML = '<option value="">Select category</option>';
 
         data.categories.forEach(category => {
             const option = document.createElement("option");
+
             option.value = category.category_id;
             option.textContent = category.category_name;
+
             select.appendChild(option);
         });
 
     } catch (error) {
-        select.innerHTML = '<option value="">Failed to load categories</option>';
+        select.innerHTML = '<option value="">Categories unavailable</option>';
+        document.getElementById("message").textContent = error.message;
     }
 }
 
 loadCategories();
 
-// SAVE MOVIE TO DATABASE
+// ADD MOVIE
 document.getElementById("movieForm").addEventListener("submit",
 async function(event) {
 
@@ -158,6 +167,18 @@ async function(event) {
         description: document.getElementById("description").value.trim()
     };
 
+    if (!movie.title || !movie.category_id || !movie.release_year) {
+        message.style.color = "red";
+        message.textContent = "Please complete all required fields.";
+        return;
+    }
+
+    if (movie.release_year < 1900 || movie.release_year > 2100) {
+        message.style.color = "red";
+        message.textContent = "Enter a valid release year.";
+        return;
+    }
+
     button.disabled = true;
     button.textContent = "SAVING...";
 
@@ -174,11 +195,11 @@ async function(event) {
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-            throw new Error(data.message || "Failed to save movie");
+            throw new Error(data.message || "Failed to save movie.");
         }
 
         message.style.color = "#00cc66";
-        message.textContent = "Movie added successfully!";
+        message.textContent = "Movie added successfully! Movie ID: " + data.movie_id;
 
         this.reset();
 
@@ -192,6 +213,5 @@ async function(event) {
     }
 });
 </script>
-
 </body>
 </html>
