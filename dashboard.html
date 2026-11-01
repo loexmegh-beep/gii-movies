@@ -80,6 +80,18 @@
             padding: 25px;
             color: #aaa;
         }
+        .actions button {
+    background: #e50914;
+    color: white;
+    padding: 12px 22px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.actions button:hover {
+    background: #b00610;
+}
     </style>
 </head>
 
@@ -95,10 +107,10 @@
 
 <main class="dashboard">
 
-    <section class="welcome">
-        <h1>Welcome, <span id="userName">User</span>!</h1>
-        <p>Welcome to your GII MOVIES account dashboard.</p>
-    </section>
+  <div class="actions">
+    <a href="movies.html">Browse Movies</a>
+    <button type="button" onclick="logout()">LOGOUT</button>
+</div>
 
     <section class="profile">
         <h2>My Profile</h2>
