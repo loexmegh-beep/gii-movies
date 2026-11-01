@@ -7,30 +7,59 @@ let favoriteMovies = new Map();
 
 const token = localStorage.getItem("userToken");
 
-// FAVORITES BUTTON DESIGN
+// FAVORITE BUTTON STYLES
 const style = document.createElement("style");
+
 style.textContent = `
-.favorite-btn {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border: none;
-    border-radius: 5px;
-    background: #333;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-}
-.favorite-btn:hover {
-    background: #e50914;
-}
+    .favorite-btn {
+        display: block;
+        width: calc(100% - 24px);
+        margin: 10px 12px;
+        padding: 11px;
+        border: 1px solid #444;
+        border-radius: 5px;
+        background: #292929;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .favorite-btn:hover {
+        background: #e50914;
+    }
+
+    .favorite-btn:disabled {
+        opacity: 0.5;
+        cursor: wait;
+    }
+
+    .movie-card .btn {
+        display: block;
+        margin: 10px 12px 15px;
+        text-align: center;
+    }
+
+    .movie-card img {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+    }
+
+    .movie-card {
+        overflow: hidden;
+    }
 `;
+
 document.head.appendChild(style);
+
 
 // LOAD MOVIES AND CATEGORIES
 async function loadMovies() {
     const message = document.getElementById("loadingMessage");
+    const container = document.getElementById("moviesContainer");
+
+    message.textContent = "Loading movies...";
+    container.innerHTML = "";
 
     try {
         const [movieResponse, categoryResponse] = await Promise.all([
@@ -42,7 +71,7 @@ async function loadMovies() {
         const categoryData = await categoryResponse.json();
 
         if (!movieResponse.ok || !movieData.success) {
-            throw new Error("Failed to load movies");
+            throw new Error("Failed to load movies.");
         }
 
         allMovies = movieData.movies || [];
@@ -51,19 +80,21 @@ async function loadMovies() {
             displayCategories(categoryData.categories || []);
         }
 
-        // LOAD USER FAVORITES
         await loadFavorites();
 
         message.textContent = "";
-        displayMovies(allMovies);
+        applyFilters();
 
     } catch (error) {
-        message.textContent = "Unable to load movies. Please try again.";
-        console.error(error);
+        message.textContent =
+            "Unable to load movies. Please try again.";
+
+        console.error("Loading error:", error);
     }
 }
 
-// LOAD FAVORITES
+
+// LOAD USER FAVORITES
 async function loadFavorites() {
     favoriteMovies.clear();
 
@@ -72,7 +103,7 @@ async function loadFavorites() {
     try {
         const response = await fetch(API_URL + "/api/favorites", {
             headers: {
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             }
         });
 
@@ -88,34 +119,39 @@ async function loadFavorites() {
         }
 
     } catch (error) {
-        console.error("Could not load favorites:", error);
+        console.error("Favorites loading error:", error);
     }
 }
+
 
 // DISPLAY CATEGORY BUTTONS
 function displayCategories(categories) {
     const container = document.getElementById("categoryFilters");
 
-    container.innerHTML = `
-        <button onclick="filterCategory('all')">All</button>
-    `;
+    container.innerHTML = "";
+
+    const allButton = document.createElement("button");
+    allButton.textContent = "All Movies";
+    allButton.onclick = () => filterCategory("all");
+
+    container.appendChild(allButton);
 
     categories.forEach(category => {
         const button = document.createElement("button");
 
-        const categoryId = category.category_id;
-        const categoryName =
+        button.textContent =
             category.category_name ||
             category.name ||
-            category.title ||
             "Category";
 
-        button.textContent = categoryName;
-        button.onclick = () => filterCategory(categoryId);
+        button.onclick = () => {
+            filterCategory(category.category_id);
+        };
 
         container.appendChild(button);
     });
 }
+
 
 // FILTER BY CATEGORY
 function filterCategory(categoryId) {
@@ -123,20 +159,25 @@ function filterCategory(categoryId) {
     applyFilters();
 }
 
+
 // SEARCH MOVIES
 function searchMovies() {
     applyFilters();
 }
 
+
 // APPLY SEARCH AND CATEGORY FILTERS
 function applyFilters() {
     const keyword = document
         .getElementById("searchInput")
-        .value.toLowerCase();
+        .value.trim()
+        .toLowerCase();
 
     const filteredMovies = allMovies.filter(movie => {
+
         const matchesSearch =
-            (movie.title || "").toLowerCase().includes(keyword);
+            (movie.title || "").toLowerCase().includes(keyword) ||
+            (movie.description || "").toLowerCase().includes(keyword);
 
         const matchesCategory =
             selectedCategory === "all" ||
@@ -147,6 +188,7 @@ function applyFilters() {
 
     displayMovies(filteredMovies);
 }
+
 
 // ADD OR REMOVE FAVORITE
 async function toggleFavorite(movieId, button) {
@@ -170,16 +212,17 @@ async function toggleFavorite(movieId, button) {
                 {
                     method: "DELETE",
                     headers: {
-                        "Authorization": `Bearer ${token}`
+                        Authorization: `Bearer ${token}`
                     }
                 }
             );
+
         } else {
             response = await fetch(API_URL + "/api/favorites", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     movie_id: movieId
@@ -190,24 +233,27 @@ async function toggleFavorite(movieId, button) {
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-            throw new Error(data.message || "Favorite action failed.");
+            throw new Error(
+                data.message || "Favorite action failed."
+            );
         }
 
         await loadFavorites();
         refreshFavoriteButtons();
 
-        alert(data.message);
-
     } catch (error) {
         alert(error.message);
-    }
 
-    button.disabled = false;
+    } finally {
+        button.disabled = false;
+    }
 }
+
 
 // UPDATE FAVORITE BUTTONS
 function refreshFavoriteButtons() {
     document.querySelectorAll(".favorite-btn").forEach(button => {
+
         const movieId = button.dataset.movieId;
         const isFavorite = favoriteMovies.has(String(movieId));
 
@@ -216,6 +262,7 @@ function refreshFavoriteButtons() {
             : "🤍 Add to Favorites";
     });
 }
+
 
 // DISPLAY MOVIE CARDS
 function displayMovies(movies) {
@@ -236,22 +283,32 @@ function displayMovies(movies) {
     message.textContent = "";
 
     activeMovies.forEach(movie => {
+
         const card = document.createElement("div");
         card.className = "movie-card";
 
+        // MOVIE POSTER
         const image = document.createElement("img");
+
         image.src = movie.poster_url ||
             "https://placehold.co/400x550?text=GII+MOVIES";
-        image.alt = movie.title;
+
+        image.alt = movie.title || "GII MOVIES poster";
+        image.loading = "lazy";
 
         image.onerror = function () {
-            this.src = "https://placehold.co/400x550?text=GII+MOVIES";
+            this.onerror = null;
+            this.src =
+                "https://placehold.co/400x550?text=GII+MOVIES";
         };
 
+        // MOVIE TITLE
         const title = document.createElement("h3");
-        title.textContent = movie.title;
+        title.textContent = movie.title || "Untitled Movie";
 
+        // MOVIE DETAILS
         const details = document.createElement("p");
+
         details.textContent =
             (movie.release_year || "Unknown year") +
             " • " +
@@ -259,14 +316,11 @@ function displayMovies(movies) {
 
         card.append(image, title, details);
 
-        // FAVORITES BUTTON
+        // FAVORITE BUTTON
         const favoriteButton = document.createElement("button");
+
         favoriteButton.className = "favorite-btn";
         favoriteButton.dataset.movieId = movie.movie_id;
-
-        favoriteButton.onclick = () => {
-            toggleFavorite(movie.movie_id, favoriteButton);
-        };
 
         favoriteButton.textContent = favoriteMovies.has(
             String(movie.movie_id)
@@ -274,8 +328,13 @@ function displayMovies(movies) {
             ? "❤️ Remove from Favorites"
             : "🤍 Add to Favorites";
 
+        favoriteButton.onclick = () => {
+            toggleFavorite(movie.movie_id, favoriteButton);
+        };
+
         card.appendChild(favoriteButton);
 
+        // WATCH MOVIE BUTTON
         if (movie.video_url) {
             const watch = document.createElement("a");
 
@@ -283,7 +342,7 @@ function displayMovies(movies) {
             watch.target = "_blank";
             watch.rel = "noopener noreferrer";
             watch.className = "btn";
-            watch.textContent = "WATCH MOVIE";
+            watch.textContent = "▶ WATCH MOVIE";
 
             card.appendChild(watch);
         }
@@ -292,5 +351,6 @@ function displayMovies(movies) {
     });
 }
 
-// START
+
+// START WEBSITE
 loadMovies();
