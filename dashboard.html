@@ -2,152 +2,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard | GII MOVIES</title>
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile | GII MOVIES</title>
 
-    <style>
-        body {
-            background: #101010;
-            color: white;
-            min-height: 100vh;
-        }
-
-        .dashboard {
-            width: 90%;
-            max-width: 1000px;
-            margin: 50px auto;
-        }
-
-        .welcome {
-            background: #1b1b1b;
-            padding: 30px;
-            border-radius: 10px;
-            border-left: 5px solid #e50914;
-            margin-bottom: 25px;
-        }
-
-        .welcome h1 {
-            margin-bottom: 10px;
-        }
-
-        .profile {
-            background: #1b1b1b;
-            padding: 30px;
-            border-radius: 10px;
-        }
-
-        .profile h2 {
-            color: #e50914;
-            margin-bottom: 20px;
-        }
-
-        .info {
-            padding: 15px 0;
-            border-bottom: 1px solid #333;
-        }
-
-        .info span {
-            color: #aaa;
-        }
-
-        .actions {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 25px;
-        }
-
-        .actions a,
-        .actions button {
-            padding: 12px 22px;
-            background: #e50914;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .actions a:hover,
-        .actions button:hover {
-            background: #b00610;
-        }
-
-        footer {
-            text-align: center;
-            padding: 25px;
-            color: #aaa;
-        }
-    </style>
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+body {
+    background: #080d18;
+    color: white;
+}
+header {
+    background: #111c2e;
+    padding: 20px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo {
+    color: #00d4ff;
+    font-size: 24px;
+    font-weight: bold;
+}
+header a {
+    color: white;
+    text-decoration: none;
+}
+.container {
+    max-width: 650px;
+    margin: 50px auto;
+    padding: 25px;
+}
+.profile {
+    background: #121d30;
+    border: 1px solid #26364f;
+    border-radius: 12px;
+    padding: 30px;
+}
+.avatar {
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    background: #00c8ed;
+    color: #00121b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 35px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+h1 {
+    color: #00d4ff;
+    margin-bottom: 25px;
+}
+.info {
+    padding: 15px 0;
+    border-bottom: 1px solid #354761;
+}
+.info label {
+    display: block;
+    color: #aebbd0;
+    margin-bottom: 8px;
+}
+.info p {
+    font-size: 17px;
+}
+.buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+button, .movies-link {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+}
+.movies-link {
+    background: #00c8ed;
+    color: #00121b;
+}
+.logout {
+    background: #e63946;
+    color: white;
+}
+#message {
+    color: #00d4ff;
+    margin-bottom: 15px;
+}
+</style>
 </head>
 
 <body>
 
 <header>
     <div class="logo">GII MOVIES</div>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="movies.html">Movies</a>
-    </nav>
+    <a href="index.html">HOME</a>
 </header>
 
-<main class="dashboard">
+<div class="container">
+    <p id="message">Loading your profile...</p>
 
-    <!-- WELCOME SECTION -->
-    <section class="welcome">
-        <h1>Welcome, <span id="userName">Loading...</span>!</h1>
-        <p>Welcome to your GII MOVIES account dashboard.</p>
-    </section>
+    <div class="profile">
+        <div class="avatar" id="avatar">U</div>
 
-    <!-- PROFILE SECTION -->
-    <section class="profile">
-        <h2>My Profile</h2>
+        <h1>MY PROFILE</h1>
 
         <div class="info">
-            <span>Full Name:</span>
-            <strong id="fullName">Loading...</strong>
+            <label>Full Name</label>
+            <p id="fullName">Loading...</p>
         </div>
 
         <div class="info">
-            <span>Email Address:</span>
-            <strong id="email">Loading...</strong>
+            <label>Email Address</label>
+            <p id="email">Loading...</p>
         </div>
 
         <div class="info">
-            <span>Account Role:</span>
-            <strong id="role">Loading...</strong>
+            <label>Account Role</label>
+            <p id="role">Loading...</p>
         </div>
 
-        <div class="actions">
-            <a href="movies.html">Browse Movies</a>
-            <button type="button" onclick="logout()">LOGOUT</button>
+        <div class="buttons">
+            <a href="movies.html" class="movies-link">BROWSE MOVIES</a>
+            <button class="logout" onclick="logout()">LOGOUT</button>
         </div>
-    </section>
-
-</main>
-
-<footer>
-    <p>© 2026 GII MOVIES. All Rights Reserved.</p>
-</footer>
+    </div>
+</div>
 
 <script>
 const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
+const token = localStorage.getItem("userToken");
 
-async function loadUserProfile() {
+if (!token) {
+    window.location.href = "login.html";
+}
 
-    const token = localStorage.getItem("userToken");
-
-    if (!token) {
-        window.location.href = "login.html";
-        return;
-    }
+async function loadProfile() {
+    const message = document.getElementById("message");
 
     try {
-
         const response = await fetch(API_URL + "/api/user/me", {
-            method: "GET",
             headers: {
                 "Authorization": "Bearer " + token
             }
@@ -156,50 +160,43 @@ async function loadUserProfile() {
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-            throw new Error(data.message || "Session expired. Please login again.");
+            throw new Error(data.message || "Unable to load profile.");
         }
 
         const user = data.user;
 
-        const userNameElement = document.getElementById("userName");
-const fullNameElement = document.getElementById("fullName");
-const emailElement = document.getElementById("email");
-const roleElement = document.getElementById("role");
+        document.getElementById("fullName").textContent =
+            user.full_name || "Not available";
 
-console.log("userName:", userNameElement);
-console.log("fullName:", fullNameElement);
-console.log("email:", emailElement);
-console.log("role:", roleElement);
+        document.getElementById("email").textContent =
+            user.email || "Not available";
 
-if (!userNameElement || !fullNameElement || !emailElement || !roleElement) {
-    throw new Error("One or more dashboard HTML elements are missing.");
-}
+        document.getElementById("role").textContent =
+            user.role_name || user.role || "User";
 
-userNameElement.textContent = user.full_name;
-fullNameElement.textContent = user.full_name;
-emailElement.textContent = user.email;
-roleElement.textContent = user.role;
+        document.getElementById("avatar").textContent =
+            (user.full_name || "U").charAt(0).toUpperCase();
+
+        localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+        message.textContent = "Profile loaded successfully!";
+
     } catch (error) {
-
-        console.error("Dashboard Error:", error);
-
-        localStorage.removeItem("userToken");
-        localStorage.removeItem("loggedInUser");
-
-        alert(error.message);
-        window.location.href = "login.html";
+        message.textContent = error.message;
     }
 }
 
 function logout() {
-
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("loggedInUser");
-
-    window.location.href = "login.html";
+    if (confirm("Are you sure you want to logout?")) {
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("loggedInUser");
+        window.location.href = "login.html";
+    }
 }
 
-loadUserProfile();
+if (token) {
+    loadProfile();
+}
 </script>
 
 </body>
