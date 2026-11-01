@@ -18,6 +18,127 @@ html {
     scroll-behavior: smooth;
 }
 
+/* GII MOVIES PREMIUM MENU */
+
+.main-header {
+    width: 100%;
+    min-height: 75px;
+    padding: 0 6%;
+    background: #080808;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid #252525;
+}
+
+.logo {
+    color: white;
+    font-size: 27px;
+    font-weight: 900;
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+.logo span {
+    color: #e50914;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.navbar a,
+.login-link {
+    color: #ddd;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: .3s;
+}
+
+.navbar a:hover,
+.navbar a.active {
+    color: #e50914;
+}
+
+.desktop-auth {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.signup-link {
+    background: #e50914;
+    color: white !important;
+    padding: 11px 19px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.signup-link:hover {
+    background: #b20710;
+}
+
+.menu-toggle,
+.mobile-auth {
+    display: none;
+}
+
+/* MOBILE MENU */
+
+@media (max-width: 850px) {
+    .main-header {
+        padding: 0 5%;
+    }
+
+    .menu-toggle {
+        display: block;
+        background: transparent;
+        color: white;
+        border: none;
+        font-size: 29px;
+        cursor: pointer;
+    }
+
+    .desktop-auth {
+        display: none;
+    }
+
+    .navbar {
+        display: none;
+        position: absolute;
+        top: 75px;
+        left: 0;
+        width: 100%;
+        background: #101010;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 25px 7%;
+        gap: 23px;
+        border-top: 1px solid #333;
+    }
+
+    .navbar.show {
+        display: flex;
+    }
+
+    .mobile-auth {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #333;
+        width: 100%;
+    }
+}
+
+
 body {
     background: var(--dark);
     color: white;
