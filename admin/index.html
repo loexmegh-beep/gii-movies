@@ -92,6 +92,11 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        #statsMessage {
+            margin-top: 15px;
+            color: #aaa;
+        }
     </style>
 </head>
 
@@ -113,20 +118,22 @@
 
         <div class="stat-card">
             <h3>Total Movies</h3>
-            <strong>4</strong>
+            <strong id="totalMovies">0</strong>
         </div>
 
         <div class="stat-card">
             <h3>Total Users</h3>
-            <strong>0</strong>
+            <strong id="totalUsers">0</strong>
         </div>
 
         <div class="stat-card">
             <h3>Categories</h3>
-            <strong>4</strong>
+            <strong id="totalCategories">0</strong>
         </div>
 
     </div>
+
+    <p id="statsMessage">Loading dashboard statistics...</p>
 
     <div class="admin-actions">
 
@@ -151,10 +158,62 @@
 </footer>
 
 <script>
+    const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
+
+    async function loadDashboardStats() {
+        const message = document.getElementById("statsMessage");
+
+        try {
+            const headers = {
+                "Authorization": "Bearer " + token
+            };
+
+            const [moviesResponse, usersResponse, categoriesResponse] =
+                await Promise.all([
+                    fetch(API_URL + "/api/movies"),
+                    fetch(API_URL + "/api/users", { headers }),
+                    fetch(API_URL + "/api/categories")
+                ]);
+
+            const moviesData = await moviesResponse.json();
+            const usersData = await usersResponse.json();
+            const categoriesData = await categoriesResponse.json();
+
+            if (!moviesResponse.ok || !moviesData.success) {
+                throw new Error("Could not load movies.");
+            }
+
+            if (!usersResponse.ok || !usersData.success) {
+                throw new Error(usersData.message || "Could not load users.");
+            }
+
+            if (!categoriesResponse.ok || !categoriesData.success) {
+                throw new Error("Could not load categories.");
+            }
+
+            document.getElementById("totalMovies").textContent =
+                moviesData.movies.length;
+
+            document.getElementById("totalUsers").textContent =
+                usersData.users.filter(user => user.role_name === "User").length;
+
+            document.getElementById("totalCategories").textContent =
+                categoriesData.categories.length;
+
+            message.textContent = "Dashboard statistics updated successfully.";
+
+        } catch (error) {
+            message.textContent = error.message;
+            console.error("Dashboard error:", error);
+        }
+    }
+
     function logoutAdmin() {
         sessionStorage.removeItem("adminToken");
         window.location.href = "login.html";
     }
+
+    loadDashboardStats();
 </script>
 
 </body>
