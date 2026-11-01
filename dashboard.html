@@ -161,11 +161,24 @@ async function loadUserProfile() {
 
         const user = data.user;
 
-        document.getElementById("userName").textContent = user.full_name;
-        document.getElementById("fullName").textContent = user.full_name;
-        document.getElementById("email").textContent = user.email;
-        document.getElementById("role").textContent = user.role;
+        const userNameElement = document.getElementById("userName");
+const fullNameElement = document.getElementById("fullName");
+const emailElement = document.getElementById("email");
+const roleElement = document.getElementById("role");
 
+console.log("userName:", userNameElement);
+console.log("fullName:", fullNameElement);
+console.log("email:", emailElement);
+console.log("role:", roleElement);
+
+if (!userNameElement || !fullNameElement || !emailElement || !roleElement) {
+    throw new Error("One or more dashboard HTML elements are missing.");
+}
+
+userNameElement.textContent = user.full_name;
+fullNameElement.textContent = user.full_name;
+emailElement.textContent = user.email;
+roleElement.textContent = user.role;
     } catch (error) {
 
         console.error("Dashboard Error:", error);
