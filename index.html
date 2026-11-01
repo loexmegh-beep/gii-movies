@@ -6,62 +6,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>GII MOVIES | Premium Entertainment</title>
+    <meta name="description" content="Watch amazing movies and Agasobanuye entertainment on GII MOVIES.">
 
     <link rel="stylesheet" href="css/style.css">
 
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            margin: 0;
             background: #080808;
-            color: white;
+            color: #fff;
             font-family: Arial, sans-serif;
         }
 
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* HEADER */
         header {
-            background: #111;
-            padding: 20px 6%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(8, 8, 8, 0.96);
+            backdrop-filter: blur(12px);
+            padding: 18px 6%;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 20px;
             flex-wrap: wrap;
-            gap: 15px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #252525;
         }
 
         .logo {
             color: #e50914;
             font-size: 28px;
-            font-weight: bold;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            color: white;
         }
 
         nav {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             flex-wrap: wrap;
         }
 
         nav a {
-            color: white;
-            text-decoration: none;
+            color: #ddd;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.3s;
         }
 
         nav a:hover {
             color: #e50914;
         }
 
+        /* HERO */
         .hero {
-            padding: 100px 7%;
-            min-height: 400px;
-            background: linear-gradient(90deg, #080808, #222);
+            min-height: 520px;
+            padding: 110px 7%;
+            display: flex;
+            align-items: center;
+            background:
+                linear-gradient(90deg, #080808 5%, rgba(8,8,8,.82) 45%, rgba(8,8,8,.15)),
+                linear-gradient(0deg, #080808, transparent 40%),
+                url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=2000&q=85");
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero-content {
+            max-width: 680px;
+        }
+
+        .hero-label {
+            color: #e50914;
+            font-weight: bold;
+            letter-spacing: 4px;
+            font-size: 13px;
+            margin-bottom: 20px;
         }
 
         .hero h1 {
-            font-size: 48px;
-            max-width: 650px;
+            font-size: clamp(38px, 6vw, 68px);
+            line-height: 1.08;
+            font-weight: 900;
+            margin-bottom: 20px;
         }
 
         .hero h1 span {
@@ -69,70 +110,114 @@
         }
 
         .hero p {
-            color: #ccc;
-            max-width: 550px;
-            line-height: 1.7;
+            color: #ddd;
+            line-height: 1.8;
+            max-width: 530px;
+            font-size: 16px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 28px;
         }
 
         .btn {
             display: inline-block;
             background: #e50914;
             color: white;
-            padding: 14px 25px;
+            padding: 15px 25px;
             border-radius: 5px;
-            text-decoration: none;
-            margin-top: 15px;
+            font-weight: bold;
+            transition: .3s;
         }
 
         .btn:hover {
             background: #b00610;
+            transform: translateY(-3px);
         }
 
+        .btn-secondary {
+            background: rgba(255,255,255,.13);
+            border: 1px solid #777;
+        }
+
+        .btn-secondary:hover {
+            background: #333;
+        }
+
+        /* MOVIE SECTION */
         .section {
-            padding: 40px 6%;
+            padding: 45px 6%;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 22px;
         }
 
         .section h2 {
+            font-size: 25px;
             border-left: 5px solid #e50914;
-            padding-left: 12px;
+            padding-left: 13px;
         }
 
+        .section-heading small {
+            color: #999;
+        }
+
+        /* SEARCH */
         .search {
             width: 100%;
-            max-width: 450px;
-            padding: 14px;
-            margin: 20px 0;
-            border-radius: 5px;
-            border: 1px solid #444;
-            background: #191919;
+            max-width: 500px;
+            padding: 15px 18px;
+            margin: 5px 0 22px;
+            border-radius: 6px;
+            border: 1px solid #383838;
+            background: #171717;
             color: white;
+            font-size: 15px;
+            outline: none;
         }
 
+        .search:focus {
+            border-color: #e50914;
+        }
+
+        /* CATEGORIES */
         .category {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin: 15px 0;
+            margin-bottom: 28px;
         }
 
         .category button {
-            background: #222;
+            background: #202020;
             color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 20px;
+            border: 1px solid #333;
+            padding: 10px 19px;
+            border-radius: 25px;
             cursor: pointer;
+            transition: .3s;
         }
 
-        .category button:hover {
+        .category button:hover,
+        .category button:focus {
             background: #e50914;
+            border-color: #e50914;
         }
 
+        /* MOVIE GRID */
         #moviesContainer {
             display: grid;
-            grid-template-columns:
-                repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 22px;
         }
 
         .movie-link {
@@ -141,35 +226,108 @@
         }
 
         .movie-card {
-            background: #171717;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: 0.3s;
             height: 100%;
+            overflow: hidden;
+            background: #171717;
+            border: 1px solid #252525;
+            border-radius: 9px;
+            transition: .3s ease;
         }
 
         .movie-card:hover {
-            transform: translateY(-7px);
-            box-shadow: 0 5px 20px #e5091444;
+            transform: translateY(-8px);
+            border-color: #e50914;
+            box-shadow: 0 10px 30px rgba(229,9,20,.18);
         }
 
         .movie-card img {
             width: 100%;
-            height: 250px;
+            height: 280px;
+            display: block;
             object-fit: cover;
+            background: #222;
+            transition: .4s;
         }
 
-        .movie-card h3,
+        .movie-card:hover img {
+            transform: scale(1.04);
+        }
+
+        .movie-card h3 {
+            padding: 13px 12px 5px;
+            font-size: 16px;
+        }
+
         .movie-card p {
-            padding: 0 12px;
+            padding: 0 12px 15px;
+            color: #aaa;
+            font-size: 13px;
         }
 
+        #loadingMessage {
+            color: #aaa;
+            padding: 20px 0;
+        }
+
+        /* FOOTER */
         footer {
             text-align: center;
-            padding: 25px;
+            padding: 40px 20px;
             background: #111;
-            color: #aaa;
-            margin-top: 40px;
+            color: #999;
+            border-top: 1px solid #292929;
+            margin-top: 50px;
+        }
+
+        footer h3 {
+            color: #e50914;
+            font-size: 25px;
+            margin-bottom: 12px;
+        }
+
+        footer p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        /* MOBILE */
+        @media (max-width: 600px) {
+            header {
+                justify-content: center;
+                text-align: center;
+            }
+
+            nav {
+                justify-content: center;
+                gap: 16px;
+            }
+
+            .hero {
+                min-height: 430px;
+                padding: 70px 6%;
+                background-position: center;
+            }
+
+            .hero p {
+                font-size: 14px;
+            }
+
+            .section {
+                padding: 32px 5%;
+            }
+
+            #moviesContainer {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+            }
+
+            .movie-card img {
+                height: 210px;
+            }
+
+            .movie-card h3 {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -177,41 +335,55 @@
 <body>
 
 <header>
-    <div class="logo">GII MOVIES</div>
+    <a href="index.html" class="logo">GII <span>MOVIES</span></a>
 
     <nav>
-        <a href="index.html">Home</a>
-        <a href="movies.html">Movies</a>
-        <a href="login.html">Login</a>
-        <a href="register.html">Sign Up</a>
+        <a href="index.html">HOME</a>
+        <a href="movies.html">MOVIES</a>
+        <a href="login.html">LOGIN</a>
+        <a href="register.html">SIGN UP</a>
     </nav>
 </header>
 
 <section class="hero">
-    <h1>
-        WATCH ALL MOVIES FOR FREE 
-        <span> WATCH AGASOBANUYE</span>
-    </h1>
+    <div class="hero-content">
+        <div class="hero-label">WELCOME TO GII MOVIES</div>
 
-    
-    
-    <a href="movies.html" class="btn">REBA MOVIES ZOSE KUBUNTU</a>
+        <h1>
+            UNLIMITED MOVIES.
+            <span>UNLIMITED ENTERTAINMENT.</span>
+        </h1>
+
+        <p>
+            Discover amazing movies from around the world.
+            Enjoy Agasobanuye, action, drama, comedy and many
+            more entertainment experiences.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="movies.html" class="btn">▶ WATCH MOVIES</a>
+            <a href="#popular" class="btn btn-secondary">EXPLORE MOVIES</a>
+        </div>
+    </div>
 </section>
 
-<section class="section">
+<section class="section" id="popular">
 
-    <h2>Popular Movies</h2>
+    <div class="section-heading">
+        <h2>Popular Movies</h2>
+        <small>Discover your next favorite movie</small>
+    </div>
 
     <input
         type="text"
         id="searchInput"
         class="search"
-        placeholder="Search movies..."
+        placeholder="Search for movies..."
         onkeyup="searchMovies()"
     >
 
     <div class="category" id="categoryFilters">
-        <button onclick="filterCategory('all')">All</button>
+        <button onclick="filterCategory('all')">All Movies</button>
     </div>
 
     <p id="loadingMessage">Loading movies...</p>
@@ -223,6 +395,7 @@
 <footer>
     <h3>GII MOVIES</h3>
     <p>Unlimited Movies. Unlimited Entertainment.</p>
+    <p>Watch Agasobanuye and movies from around the world.</p>
     <p>© 2026 GII MOVIES. All Rights Reserved.</p>
 </footer>
 
