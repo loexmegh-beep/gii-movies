@@ -2,218 +2,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | GII MOVIES</title>
-    <link rel="stylesheet" href="../css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | GII MOVIES</title>
 
-    <script>
-        const token = sessionStorage.getItem("adminToken");
-
-        if (!token) {
-            window.location.href = "login.html";
-        }
-    </script>
-
-    <style>
-        body {
-            min-height: 100vh;
-        }
-
-        .admin-header {
-            padding: 22px 5%;
-            background: #111;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .admin-header h2 {
-            color: #e50914;
-        }
-
-        .dashboard {
-            padding: 35px 5%;
-        }
-
-        .dashboard h1 {
-            margin-bottom: 25px;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-            gap: 20px;
-        }
-
-        .stat-card {
-            background: #191919;
-            border: 1px solid #333;
-            padding: 25px;
-            border-radius: 10px;
-        }
-
-        .stat-card h3 {
-            color: #aaa;
-            margin-bottom: 15px;
-        }
-
-        .stat-card strong {
-            font-size: 32px;
-            color: #e50914;
-        }
-
-        .admin-actions {
-            margin-top: 35px;
-            background: #191919;
-            padding: 25px;
-            border-radius: 10px;
-        }
-
-        .admin-actions a {
-            display: inline-block;
-            background: #e50914;
-            color: white;
-            text-decoration: none;
-            padding: 13px 20px;
-            border-radius: 5px;
-            margin: 10px 10px 0 0;
-        }
-
-        .admin-actions a:hover {
-            background: #b00610;
-        }
-
-        .logout-btn {
-            background: #e50914;
-            color: white;
-            padding: 10px 18px;
-            border: 0;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #statsMessage {
-            margin-top: 15px;
-            color: #aaa;
-        }
-    </style>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+body {
+    background: #080d18;
+    color: white;
+}
+.sidebar {
+    position: fixed;
+    width: 250px;
+    height: 100vh;
+    background: #111c2e;
+    padding: 25px 18px;
+}
+.logo {
+    color: #00d4ff;
+    font-size: 23px;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+.sidebar a {
+    display: block;
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 14px;
+    border-radius: 7px;
+    margin-bottom: 10px;
+}
+.sidebar a:hover {
+    background: #20334e;
+    color: #00d4ff;
+}
+.main {
+    margin-left: 250px;
+    padding: 30px;
+}
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+h1 { color: #00d4ff; }
+.welcome { color: #aebbd0; margin-top: 8px; }
+.logout {
+    background: #e63946;
+    color: white;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 20px;
+}
+.card {
+    background: #121d30;
+    border: 1px solid #26364f;
+    padding: 25px;
+    border-radius: 12px;
+}
+.card h3 { color: #aebbd0; font-size: 15px; }
+.card p {
+    font-size: 32px;
+    font-weight: bold;
+    color: #00d4ff;
+    margin-top: 15px;
+}
+.actions {
+    margin-top: 35px;
+}
+.actions h2 { margin-bottom: 20px; }
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+.action {
+    display: block;
+    padding: 22px;
+    background: #121d30;
+    border: 1px solid #26364f;
+    border-radius: 10px;
+    color: white;
+    text-decoration: none;
+}
+.action:hover {
+    border-color: #00d4ff;
+    transform: translateY(-3px);
+}
+.action strong {
+    display: block;
+    color: #00d4ff;
+    margin-bottom: 10px;
+}
+#message {
+    color: #aebbd0;
+    margin-top: 20px;
+}
+@media(max-width: 750px) {
+    .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+    }
+    .main {
+        margin-left: 0;
+        padding: 20px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<header class="admin-header">
-    <h2>GII MOVIES ADMIN</h2>
+<aside class="sidebar">
+    <div class="logo">GII MOVIES</div>
+    <a href="index.html">Dashboard</a>
+    <a href="add-movie.html">Add Movie</a>
+    <a href="manage-movies.html">Manage Movies</a>
+    <a href="users.html">Users Management</a>
+</aside>
 
-    <button class="logout-btn" onclick="logoutAdmin()">
-        Logout
-    </button>
-</header>
+<main class="main">
 
-<main class="dashboard">
+    <div class="top">
+        <div>
+            <h1>Admin Dashboard</h1>
+            <p class="welcome">Welcome back, Administrator!</p>
+        </div>
+        <button class="logout" onclick="logout()">LOGOUT</button>
+    </div>
 
-    <h1>Admin Dashboard</h1>
-
-    <div class="stats">
-
-        <div class="stat-card">
+    <section class="cards">
+        <div class="card">
             <h3>Total Movies</h3>
-            <strong id="totalMovies">0</strong>
+            <p id="totalMovies">...</p>
         </div>
 
-        <div class="stat-card">
+        <div class="card">
             <h3>Total Users</h3>
-            <strong id="totalUsers">0</strong>
+            <p id="totalUsers">...</p>
         </div>
 
-        <div class="stat-card">
-            <h3>Categories</h3>
-            <strong id="totalCategories">0</strong>
+        <div class="card">
+            <h3>Platform</h3>
+            <p style="font-size:22px">ACTIVE</p>
         </div>
+    </section>
 
-    </div>
+    <section class="actions">
+        <h2>Quick Actions</h2>
 
-    <p id="statsMessage">Loading dashboard statistics...</p>
+        <div class="action-grid">
+            <a class="action" href="add-movie.html">
+                <strong>+ ADD MOVIE</strong>
+                Add a new movie to the platform.
+            </a>
 
-    <div class="admin-actions">
+            <a class="action" href="manage-movies.html">
+                <strong>MANAGE MOVIES</strong>
+                Edit or delete existing movies.
+            </a>
 
-        <h2>Manage Website</h2>
+            <a class="action" href="users.html">
+                <strong>USERS MANAGEMENT</strong>
+                View and manage registered users.
+            </a>
 
-        <a href="add-movie.html">+ Add Movie</a>
+            <a class="action" href="https://gii-movies.onrender.com/" target="_blank">
+                <strong>VIEW WEBSITE</strong>
+                Open the public GII MOVIES website.
+            </a>
+        </div>
+    </section>
 
-        <a href="manage-movies.html">Manage Movies</a>
-
-        <a href="users.html">Manage Users</a>
-
-        <a href="../movies.html">View Movies</a>
-
-        <a href="../index.html">View Homepage</a>
-
-    </div>
+    <p id="message">Loading dashboard information...</p>
 
 </main>
 
-<footer>
-    <p>© 2026 GII MOVIES Admin Panel</p>
-</footer>
-
 <script>
-    const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
+const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
+const token = sessionStorage.getItem("adminToken");
 
-    async function loadDashboardStats() {
-        const message = document.getElementById("statsMessage");
+if (!token) {
+    window.location.href = "login.html";
+}
 
-        try {
-            const headers = {
-                "Authorization": "Bearer " + token
-            };
+async function loadDashboard() {
+    const message = document.getElementById("message");
 
-            const [moviesResponse, usersResponse, categoriesResponse] =
-                await Promise.all([
-                    fetch(API_URL + "/api/movies"),
-                    fetch(API_URL + "/api/users", { headers }),
-                    fetch(API_URL + "/api/categories")
-                ]);
+    try {
+        const [moviesResponse, usersResponse] = await Promise.all([
+            fetch(API_URL + "/api/movies"),
+            fetch(API_URL + "/api/users", {
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            })
+        ]);
 
-            const moviesData = await moviesResponse.json();
-            const usersData = await usersResponse.json();
-            const categoriesData = await categoriesResponse.json();
+        const moviesData = await moviesResponse.json();
+        const usersData = await usersResponse.json();
 
-            if (!moviesResponse.ok || !moviesData.success) {
-                throw new Error("Could not load movies.");
-            }
-
-            if (!usersResponse.ok || !usersData.success) {
-                throw new Error(usersData.message || "Could not load users.");
-            }
-
-            if (!categoriesResponse.ok || !categoriesData.success) {
-                throw new Error("Could not load categories.");
-            }
-
-            document.getElementById("totalMovies").textContent =
-                moviesData.movies.length;
-
-            document.getElementById("totalUsers").textContent =
-                usersData.users.filter(user => user.role_name === "User").length;
-
-            document.getElementById("totalCategories").textContent =
-                categoriesData.categories.length;
-
-            message.textContent = "Dashboard statistics updated successfully.";
-
-        } catch (error) {
-            message.textContent = error.message;
-            console.error("Dashboard error:", error);
+        if (!moviesResponse.ok || !moviesData.success) {
+            throw new Error("Unable to load movies.");
         }
-    }
 
-    function logoutAdmin() {
+        if (!usersResponse.ok || !usersData.success) {
+            throw new Error("Unable to load users.");
+        }
+
+        document.getElementById("totalMovies").textContent =
+            (moviesData.movies || []).length;
+
+        document.getElementById("totalUsers").textContent =
+            (usersData.users || []).length;
+
+        message.textContent = "Dashboard information loaded successfully.";
+
+    } catch (error) {
+        message.textContent = error.message;
+    }
+}
+
+function logout() {
+    if (confirm("Are you sure you want to logout?")) {
         sessionStorage.removeItem("adminToken");
         window.location.href = "login.html";
     }
+}
 
-    loadDashboardStats();
+if (token) {
+    loadDashboard();
+}
 </script>
 
 </body>
