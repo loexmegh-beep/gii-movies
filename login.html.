@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GII MOVIES</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #101820;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            background: #1c2935;
+            padding: 35px;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px #000;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        p {
+            text-align: center;
+            color: #ccc;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: #00bcd4;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0097a7;
+        }
+
+        #message {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .register {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-box">
+
+        <h1>GII MOVIES</h1>
+        <p>Login to your account</p>
+
+        <form id="loginForm">
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Enter your email"
+                required
+            >
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Enter your password"
+                required
+            >
+
+            <button type="submit" id="loginBtn">
+                Login
+            </button>
+
+        </form>
+
+        <div id="message"></div>
+
+        <div class="register">
+            Don't have an account?
+            <a href="register.html">Register</a>
+        </div>
+
+    </div>
+
+    <script>
+        const API_URL =
+            "https://agasobanuyerwanda.loexmegh.workers.dev";
+
+        document.getElementById("loginForm")
+        .addEventListener("submit", async function(e) {
+
+            e.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            const message = document.getElementById("message");
+            const button = document.getElementById("loginBtn");
+
+            button.disabled = true;
+            button.textContent = "Logging in...";
+            message.textContent = "";
+
+            try {
+
+                const response = await fetch(
+                    API_URL + "/api/user/login",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Login failed.");
+                }
+
+                localStorage.setItem("userToken", data.token);
+                localStorage.setItem(
+                    "loggedInUser",
+                    JSON.stringify(data.user)
+                );
+
+                message.style.color = "#00ff88";
+                message.textContent = "Login successful!";
+
+                window.location.href = "movies.html";
+
+            } catch (error) {
+
+                message.style.color = "#ff5555";
+                message.textContent = error.message;
+
+            } finally {
+
+                button.disabled = false;
+                button.textContent = "Login";
+
+            }
+
+        });
+    </script>
+
+</body>
+</html>
