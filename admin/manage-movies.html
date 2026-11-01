@@ -4,182 +4,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Movies | GII MOVIES</title>
-    <link rel="stylesheet" href="../css/style.css">
-
+    <title>Manage Movies - GII MOVIES</title>
     <style>
-        .manage-container {
-            padding: 35px 5%;
-        }
-
-        .add-button {
-            display: inline-block;
-            padding: 12px 20px;
-            background: #e50914;
-            border-radius: 5px;
-            margin: 20px 0;
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 25px;
+            background: #080d18;
             color: white;
+            font-family: Arial, sans-serif;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        h1 { color: #00d4ff; }
+        a, button {
+            padding: 10px 15px;
+            border: 0;
+            border-radius: 6px;
             text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
         }
-
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #191919;
-            min-width: 600px;
-        }
-
-        th, td {
+        a { background: #00bde8; color: #00121b; }
+        .refresh { background: #26364f; color: white; }
+        .movie {
+            background: #121d30;
+            border: 1px solid #26364f;
+            border-radius: 10px;
             padding: 15px;
-            border-bottom: 1px solid #333;
-            text-align: left;
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
         }
-
-        th {
-            background: #292929;
-            color: #e50914;
+        .movie img {
+            width: 100px;
+            height: 135px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #26364f;
         }
-
-        .delete-button {
-            background: #e50914;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .edit-button {
-            background: #198754;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 8px;
-        }
-
-        #message {
-            margin: 15px 0;
-        }
+        .details { flex: 1; min-width: 180px; }
+        .details p { color: #aebbd0; }
+        .edit { background: #f0b429; color: #171000; }
+        .delete { background: #e63946; color: white; }
+        #message { margin-top: 20px; color: #00d4ff; }
     </style>
 </head>
-
 <body>
 
+<header>
+    <h1>GII MOVIES | Manage Movies</h1>
+    <a href="index.html">Admin Dashboard</a>
+</header>
+
+<h2>All Movies</h2>
+<button class="refresh" onclick="loadMovies()">REFRESH MOVIES</button>
+
+<div id="message">Loading movies...</div>
+<div id="moviesContainer"></div>
+
 <script>
+const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
 const token = sessionStorage.getItem("adminToken");
 
 if (!token) {
     window.location.href = "login.html";
 }
-</script>
 
-<header>
-    <div class="logo">GII MOVIES ADMIN</div>
-    <nav>
-        <a href="index.html">Dashboard</a>
-        <a href="../index.html">Website</a>
-    </nav>
-</header>
-
-<main class="manage-container">
-
-    <h1>Manage Movies</h1>
-
-    <a href="add-movie.html" class="add-button">
-        + Add New Movie
-    </a>
-
-    <p id="message">Loading movies...</p>
-
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>Movie Title</th>
-                    <th>Category</th>
-                    <th>Year</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-
-            <tbody id="movieTable"></tbody>
-        </table>
-    </div>
-
-</main>
-
-<footer>
-    <p>© 2026 GII MOVIES Admin Panel</p>
-</footer>
-
-<script>
-const API_URL = "https://agasobanuyerwanda.loexmegh.workers.dev";
-
-// LOAD MOVIES FROM DATABASE
 async function loadMovies() {
-    const table = document.getElementById("movieTable");
+    const container = document.getElementById("moviesContainer");
     const message = document.getElementById("message");
+
+    container.innerHTML = "";
+    message.textContent = "Loading movies...";
 
     try {
         const response = await fetch(API_URL + "/api/movies");
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-            throw new Error("Unable to load movies.");
+            throw new Error(data.message || "Unable to load movies.");
         }
 
-        table.innerHTML = "";
+        const movies = data.movies || [];
 
-        if (data.movies.length === 0) {
-            message.textContent = "No movies available.";
+        if (movies.length === 0) {
+            message.textContent = "No movies found.";
             return;
         }
 
-        message.textContent = "";
+        message.textContent = movies.length + " movie(s) found.";
 
-        data.movies.forEach(movie => {
-            const row = document.createElement("tr");
+        movies.forEach(movie => {
+            const card = document.createElement("div");
+            card.className = "movie";
 
-            const title = document.createElement("td");
+            const image = document.createElement("img");
+            image.src = movie.poster_url || "";
+            image.alt = movie.title;
+            image.onerror = () => image.style.display = "none";
+
+            const details = document.createElement("div");
+            details.className = "details";
+
+            const title = document.createElement("h3");
             title.textContent = movie.title;
 
-            const category = document.createElement("td");
-            category.textContent = movie.category_name || "Unknown";
+            const year = document.createElement("p");
+            year.textContent = "Year: " + (movie.release_year || "N/A");
 
-            const year = document.createElement("td");
-            year.textContent = movie.release_year || "";
+            const category = document.createElement("p");
+            category.textContent = "Category: " + (movie.category_name || "N/A");
 
-            const action = document.createElement("td");
+            const id = document.createElement("p");
+            id.textContent = "Movie ID: " + movie.movie_id;
 
-            // EDIT BUTTON
-            const editButton = document.createElement("button");
-            editButton.textContent = "Edit";
-            editButton.className = "edit-button";
-
-            editButton.onclick = function() {
-                window.location.href =
-                    "edit-movie.html?id=" + movie.movie_id;
+            const edit = document.createElement("button");
+            edit.className = "edit";
+            edit.textContent = "EDIT";
+            edit.onclick = () => {
+                window.location.href = "edit-movie.html?id=" +
+                    encodeURIComponent(movie.movie_id);
             };
 
-            // DELETE BUTTON
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete";
-            deleteButton.className = "delete-button";
+            const remove = document.createElement("button");
+            remove.className = "delete";
+            remove.textContent = "DELETE";
+            remove.onclick = () => deleteMovie(movie.movie_id, movie.title);
 
-            deleteButton.onclick = function() {
-                deleteMovie(movie.movie_id);
-            };
-
-            action.append(editButton, deleteButton);
-
-            row.append(title, category, year, action);
-            table.appendChild(row);
+            details.append(title, year, category, id, edit, remove);
+            card.append(image, details);
+            container.appendChild(card);
         });
 
     } catch (error) {
@@ -187,13 +149,10 @@ async function loadMovies() {
     }
 }
 
-// DELETE MOVIE FROM DATABASE
-async function deleteMovie(id) {
-    const confirmation = confirm(
-        "Are you sure you want to delete this movie?"
-    );
-
-    if (!confirmation) return;
+async function deleteMovie(id, title) {
+    if (!confirm("Are you sure you want to delete " + title + "?")) {
+        return;
+    }
 
     const message = document.getElementById("message");
 
@@ -208,7 +167,7 @@ async function deleteMovie(id) {
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-            throw new Error(data.message || "Delete failed.");
+            throw new Error(data.message || "Could not delete movie.");
         }
 
         message.textContent = "Movie deleted successfully!";
