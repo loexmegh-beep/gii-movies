@@ -354,3 +354,28 @@ function displayMovies(movies) {
 
 // START WEBSITE
 loadMovies();
+
+// CINEMATIC BANNER AUTOMATIC SLIDER
+
+const heroSlides = document.querySelectorAll(".hero-slide");
+const heroIndicators = document.querySelectorAll(
+    ".hero-indicators span"
+);
+
+let currentHero = 0;
+
+function changeHero() {
+    if (heroSlides.length === 0) return;
+
+    heroSlides[currentHero].classList.remove("active");
+    heroIndicators[currentHero]?.classList.remove("active");
+
+    currentHero = (currentHero + 1) % heroSlides.length;
+
+    heroSlides[currentHero].classList.add("active");
+    heroIndicators[currentHero]?.classList.add("active");
+}
+
+if (heroSlides.length > 1) {
+    setInterval(changeHero, 6000);
+}
