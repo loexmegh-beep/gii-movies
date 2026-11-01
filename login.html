@@ -121,8 +121,7 @@ async function loginUser(event) {
         localStorage.setItem("loggedInUser", JSON.stringify(data.user));
 
         alert("Welcome " + data.user.full_name + "!");
-
-        window.location.href = "movies.html";
+window.location.href = "dashboard.html";
 
     } catch (error) {
         alert("Unable to connect to server. Try again.");
